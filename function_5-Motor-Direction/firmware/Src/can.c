@@ -148,13 +148,13 @@ void CAN_FilterConfig(void)
 	CAN_FilterConfTypeDef sFilterConfig;	
 	
 	sFilterConfig.FilterNumber = 0;
-	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-	sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-	sFilterConfig.FilterIdHigh = 0x0000;
-	sFilterConfig.FilterIdLow = 0x0000;
-	sFilterConfig.FilterMaskIdHigh=0x0000;
-	sFilterConfig.FilterMaskIdLow=0x0000;
-	sFilterConfig.FilterFIFOAssignment = 0;
+	sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
+	sFilterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
+	sFilterConfig.FilterIdHigh = CAN_ID_CMC<<5;
+	sFilterConfig.FilterIdLow = CAN_ID_SSC<<5;
+	//sFilterConfig.FilterMaskIdHigh = 0xFFFF;
+	//sFilterConfig.FilterMaskIdLow = 0xFFFF;
+	sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
 	sFilterConfig.FilterActivation = ENABLE;
 	sFilterConfig.BankNumber = 14;
 	

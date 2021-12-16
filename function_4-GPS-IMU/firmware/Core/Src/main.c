@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <math.h>
 
 #include "teseo_liv3f.h"
 #include "iks01a2.h"
@@ -56,7 +57,6 @@ UART_HandleTypeDef huart2;
 
 extern CAN_HandleTypeDef     hcan;
 
-int SEND_CAN = 1;
 AHRS_3AxisValues accelerometer;
 AHRS_3AxisValues gyroscope;
 AHRS_3AxisValues magnetometer;
@@ -138,29 +138,10 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	uint8_t data[8]={1,2,3,4,5,6,7,8};
-	magnetometer.x = 1.0;
-	accelerometer.x= 1.0;
-	gyroscope.x=1.0;
-
 	while (1)
 	{
 		/* USER CODE END WHILE */
-		printf("hello\n");
-		//eulerangles = AHRS_GetEulerAngles();
-		//AHRS_Update(&accelerometer, &gyroscope, &magnetometer);
-		//printf("%f, %f, %f\n", accelerometer.x, accelerometer.y, accelerometer.z);
-		//printf("%f, %f, %f\n", gyroscope.x, gyroscope.y, gyroscope.z);
-		//swprintf("%f, %f, %f\n", magnetometer.x, magnetometer.y, magnetometer.z);
-		/* USER CODE BEGIN 3 */
-		// Envoi des mesures
-		if (SEND_CAN){
-		    SEND_CAN = 0;
-		    CAN_Send(data, 0x201);
-		}
 
-		//HAL_Delay(1000);
-		//printf ("coucou\n");
 	}
 	/* USER CODE END 3 */
 }

@@ -42,7 +42,8 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define PERIOD_SEND_MES 100 // Period in ms to send data
+#define PERIOD_SEND_GPS 500 // Period in ms to send GPS data
+#define PERIOD_SEND_IMU 200 // Period in ms to send IMU data
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

@@ -230,7 +230,7 @@ sudo /sbin/ip link set can0 up type can bitrate 400000
 		_Note:_ To avoid power problem, the motor's PWM is limited by software.
 
 * **SteerMode: requested steering mode**
-	* Bits 7-0: Command bits.
+	* Bits 15-8: Command bits.
 		This bit-field is used to control the steering of the car. The value must be between 0 and 100.The value 0 would be the maximum angle to the left. The value 50 would be going straight forward. The value 100 is the maximum angle to the right.
 		The available modes are : 
 		* DISABLED 	: 0x00
@@ -245,6 +245,91 @@ sudo /sbin/ip link set can0 up type can bitrate 400000
 		_Note:_ The maximum turning radius to the left and right are limited by mechanic.
 
 
+### GPS Lat&Lon DD (GPS) 
+
+* **From:** NucleoL476
+* **To:** Raspberry Pi
+* **Lenght (Bytes):** 8
+* **Data field:**
+
+* The Latitude and Longitude are transmitted in Decimal Degrees.
+
+|Byte 0 |Byte 1 |Byte 2 |Byte 3 |Byte 4 |Byte 5 |Byte 6 |Byte 7 |
+|:------|:------|:------|:------|:------|:------|:------|:------|
+| Lat3 | Lat2 | Lat1 | Lat0 | Lon3 | Lon2 | Lon1 | Lon0 |
+
+* **Latitude data**
+		The Latitude data in DD (decimal degrees) is decomposed as follows: 
+		<Lat3>.<Lat2><Lat1><Lat0>
+
+	* Bit 7-0: Lat3.
+		This bit-field corresponds to the integer part of the latitude. This value is usually 43 for our use. 
+		
+	* Bit 15-8: Lat2.
+		This bit-field corresponds to the first and second decimal places of the latitude. 
+
+	* Bit 23-16: Lat1.
+		This bit-field corresponds to the third and fourth two decimal places of the latitude. 
+
+	* Bit 31-24: Lat0.
+		This bit-field corresponds to the fifth and sixth decimal places of the latitude. 
+
+		_Note:_ The Raspberry must recompose the data as a latitude in decimal degrees.
+
+* **Longitude data**
+		The Longitude data in DD (decimal degrees) is decomposed as follows: 
+		<Lon3>.<Lon2><Lon1><Lon0>
+
+	* Bit 7-0: Lon3.
+		This bit-field corresponds to the integer part of the longitude. This value is usually 1 for our use. 
+		
+	* Bit 15-8: Lon2.
+		This bit-field corresponds to the first and second decimal places of the longitude. 
+
+	* Bit 23-16: Lon1.
+		This bit-field corresponds to the third and fourth two decimal places of the longitude. 
+
+	* Bit 31-24: Lon0.
+		This bit-field corresponds to the fifth and sixth decimal places of the longitude. 
+
+		_Note:_ The Raspberry must recompose the data as a longitude in decimal degrees.
+
+##IMU Measures 
+
+* **From:** NucleoL476
+* **To:** Raspberry Pi
+* **Lenght (Bytes):** 8
+* **Data field:**
+
+* The Acceleration is transmitted in mg and Yaw is transmitted in mdps.
+
+* IMPORTANT: ALL DATAS IN THIS CAN MESSAGE ARE SIGNED INT.
+
+|Byte 0 |Byte 1 |Byte 2 |Byte 3 |Byte 4 |Byte 5 |Byte 6 |Byte 7 |
+|:------|:------|:------|:------|:------|:------|:------|:------|
+| AccX  | AccY  |   -   |   -   | Yaw1  | Yaw0  |   -   |   -   |
+
+* **Acceleration data**
+		The Acceleration data in mg is decomposed as follows: 
+		<Acc_X><Acc_Y>
+
+	* Acc_X.
+		This bit-field corresponds to the acceleration on the x axis. It is a signed integer on 8 bits. (Lateral axis) 
+		
+	* Acc_Y.
+		This bit-field corresponds to the acceleration on the y axis. It is a signed integer on 8 bits. (Longitudinal axis = forward/backward axis of the car) 
+
+* **Yaw data**
+		The yaw data in mdps is a signed integer decomposed as follows: 
+		<Yaw1><Yaw0>
+
+	* Bit 7-0: Yaw1.
+		This bit-field corresponds to the 8 most significant bits of the integer part of the Yaw value.  
+		
+	* Bit 15-8: Yaw0.
+		This bit-field corresponds to the 8 least significant bits of the integer part of the Yaw value.
+ 
+
 ## IDs of the CAN Messages
 
 |Name                        |Class ID |SubClass ID|Priority |ID    |
@@ -257,3 +342,5 @@ sudo /sbin/ip link set can0 up type can bitrate 400000
 |Orientation Measures 1 (OM1)|0x1      |0x0        |0x1      |0x101 |
 |Orientation Measures 2 (OM2)|0x1      |0x0        |0x2      |0x102 |
 |Speed&Steering Command (SSC)|0x0      |0x2        |0x0      |0x020 |
+|GPS Lat&Lon DD (GPS)        |0x2      |0x0        |0x0      |0x200 |
+|Acceleration and Yaw (IMU1) |0x2      |0x1        |0x0      |0x200 |

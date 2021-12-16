@@ -91,7 +91,7 @@ static CanRxCallback rxCallback=0;
  */
 void CAN_Init(void)
 {
-	CAN_FilterTypeDef  sFilterConfig;
+	//CAN_FilterTypeDef  sFilterConfig;
 
 	hcan.Instance = CANx;
 	hcan.Init.Prescaler = 20;
@@ -112,7 +112,7 @@ void CAN_Init(void)
 	}
 
 	/*##-2- Configure the CAN Filter ###########################################*/
-	sFilterConfig.FilterBank = 0;
+	/*sFilterConfig.FilterBank = 0;
 	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
 	sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
 	sFilterConfig.FilterIdHigh = FIFO_0_ID_HIGH;
@@ -126,7 +126,7 @@ void CAN_Init(void)
 	if (HAL_CAN_ConfigFilter(&hcan, &sFilterConfig) != HAL_OK)
 	{
 		while (1);
-	}
+	}*/
 
 	/*##-3- Start the CAN peripheral ###########################################*/
 	if (HAL_CAN_Start(&hcan) != HAL_OK)

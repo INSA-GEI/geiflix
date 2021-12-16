@@ -11,19 +11,42 @@
 #include "teseo_liv3f.h"
 #include "iks01a2.h"
 #include "ahrs.h"
+#include "can.h"
 
 #include <stdio.h>
 #include <string.h>
 
 uint8_t flag_1ms;
 
-/*********************************
- * Task task_send_values
- * Periodic: 1hz (1000 ms)
+/***************************************
+ * GPS Data send and variables
  */
-void task_send_values (void);
-uint32_t counter_task_send_values;
-#define PERIOD_TASK_SEND_VALUES 1000
+float64_t lat = 0;
+float64_t lon = 0;
+float64_t computing = 0;
+uint8_t gps_data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+/***************************************
+ * IMU Data send
+ */
+int8_t IMU1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int8_t IMU2[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+/*********************************
+ * Task task_send_values_GPS
+ * Periodic: 2hz (500 ms)
+ */
+void task_send_values_GPS (void);
+uint32_t counter_task_send_values_GPS;
+#define PERIOD_TASK_SEND_VALUES_GPS 500
+
+/*********************************
+ * Task task_send_values_IMU
+ * Periodic: 4hz (250 ms)
+ */
+void task_send_values_IMU (void);
+uint32_t counter_task_send_values_IMU;
+#define PERIOD_TASK_SEND_VALUES_IMU 200
 
 /*********************************
  * Task task_get_acceleration
@@ -106,8 +129,8 @@ void task_background(void);
 uint32_t SCHEDULER_Init(void) {
 	flag_1ms =0;
 
-	counter_task_send_values=0;
-
+	counter_task_send_values_IMU=0;
+	counter_task_send_values_GPS=0;
 	/* Counter for IMU tasks */
 	counter_task_get_acceleration=0;
 	counter_task_get_rotation=0;
@@ -139,7 +162,8 @@ void SCHEDULER_Run(void) {
 			flag_1ms=0;
 
 			/* increase task counters */
-			counter_task_send_values++;
+			counter_task_send_values_IMU++;
+			counter_task_send_values_GPS++;
 			counter_task_get_acceleration++;
 			counter_task_get_rotation++;
 			counter_task_get_magnetic++;
@@ -196,9 +220,14 @@ void SCHEDULER_Run(void) {
 			task_get_gps_coord();
 		}
 
-		if (counter_task_send_values>= PERIOD_TASK_SEND_VALUES) {
-			counter_task_send_values=0;
-			task_send_values();
+		if (counter_task_send_values_IMU>= PERIOD_TASK_SEND_VALUES_IMU) {
+			counter_task_send_values_IMU=0;
+			task_send_values_IMU();
+		}
+
+		if (counter_task_send_values_GPS>= PERIOD_TASK_SEND_VALUES_GPS) {
+			counter_task_send_values_GPS=0;
+			task_send_values_GPS();
 		}
 
 		task_background();
@@ -209,8 +238,9 @@ void task_background(void) {
 
 }
 
-void task_send_values (void) {
+void task_send_values_IMU (void) {
 	memcpy((void*)&current_compass, (void*)AHRS_GetEulerAngles(),sizeof(AHRS_3AxisValues));
+
 
 	printf("Acc: x=%4.2f\ty=%4.2f\tz=%4.2f\r\n",
 			current_acceleration_mg.x, current_acceleration_mg.y, current_acceleration_mg.z);
@@ -224,6 +254,54 @@ void task_send_values (void) {
 	printf("Compass: X=%3.2f\r\n         Y=%3.2f\r\n         Z=%3.2f\r\n",
 					current_compass.x, current_compass.y, current_compass.z);
 	printf("\r\n");
+	IMU1[0]= (int)current_acceleration_mg.x & 0xff;
+	IMU1[1]= (int)current_acceleration_mg.y & 0xff;
+	IMU1[4]= ((int)current_angular_rate_mdps.z & 0xff00)>>8;
+	IMU1[5]= ((int)current_angular_rate_mdps.z & 0xff);
+
+	CAN_Send(IMU1, CAN_ID_IMU1);
+
+	IMU2[0]= ((int)current_compass.x & 0xff00)>>8;
+	IMU2[1]= ((int)current_compass.x & 0xff);
+	IMU2[2]= ((int)current_compass.y & 0xff00)>>8;
+	IMU2[3]= ((int)current_compass.y & 0xff);
+	IMU2[4]= ((int)current_compass.z & 0xff00)>>8;
+	IMU2[5]= ((int)current_compass.z & 0xff);
+
+	CAN_Send(IMU2,CAN_ID_IMU2);
+	printf("\r\n");
+
+}
+
+void task_send_values_GPS (void) {
+
+	lat = current_coords.lat;
+	lon = current_coords.lon;
+	computing = lat;
+	int Lat3 = floor(computing);
+	computing = 100.0*(computing-(double)Lat3);
+	int Lat2 = floor(computing);
+	computing = 100.0*(computing-(double)Lat2);
+	int Lat1 = floor(computing);
+	computing = 100.0*(computing-(double)Lat1);
+	int Lat0 = floor(computing);
+	computing = lon;
+	int Lon3 = floor(computing);
+	computing = 100.0*(computing-(double)Lon3);
+	int Lon2 = floor(computing);
+	computing = 100.0*(computing-(double)Lon2);
+	int Lon1 = floor(computing);
+	computing = 100.0*(computing-(double)Lon1);
+	int Lon0 = floor(computing);
+	gps_data[0] = Lat3;
+	gps_data[1] = Lat2;
+	gps_data[2] = Lat1;
+	gps_data[3] = Lat0;
+	gps_data[4] = Lon3;
+	gps_data[5] = Lon2;
+	gps_data[6] = Lon1;
+	gps_data[7] = Lon0;
+	CAN_Send(gps_data, CAN_ID_GPS);
 }
 
 void task_get_acceleration (void) {
