@@ -3,6 +3,8 @@ import klunk.can
 import klunk.motors
 import klunk.ultrasound
 
+MODES = ['IDLE', 'AUTO', 'MANUAL', 'STOP', 'UNSAFE']
+
 class Car:
     def __init__(self, can_bus):
         self.speed = k.motors.SPEED_STOP
@@ -11,9 +13,10 @@ class Car:
         self.send_motors_order()
         self.ultrasound = klunk.ultrasound.Ultrasound()
         self.unsafe = False
+        self.mode = 'IDLE'
 
     def send_motors_order(self):
-        self.can_bus.send(k.can.motors_message(self.speed, self.steer))
+        self.can_bus.send(klunk.can.motors_message(self.speed, self.steer))
 
     def set_speed(self, speed):
         self.speed = speed
@@ -46,7 +49,7 @@ class Car:
 
     def faster(self):
         self.set_speed(k.motors.faster(self.speed))
-        
+
     def slower(self):
         self.set_speed(k.motors.slower(self.speed))
 
@@ -59,6 +62,8 @@ class Car:
 
     def righter(self):
         self.set_steer(k.motors.righter(self.steer))
+
+##### avoidance old treatment
 
     def update_ultrasound(self, message):
         self.ultrasound.update(message)
@@ -75,5 +80,5 @@ class Car:
                 return False
         elif self.is_going_backward() and self.ultrasound.rear_obstacle():
             return False
-        
+
         return True

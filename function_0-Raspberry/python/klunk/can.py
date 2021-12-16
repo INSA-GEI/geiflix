@@ -32,3 +32,7 @@ class Can(Thread):
 
             if klunk.can.is_message_from_ids(data, klunk.ultrasound.CAN_IDS):
                 self.car.update_ultrasound(data)
+
+            #if klunk.can.is_message_from_ids(data, klunk.mapping.CAN_IDS):
+                #self.car.update_IMU(data)
+                #self.car.update_GPS(data)

@@ -29,6 +29,8 @@ class Ultrasound:
             self.values['rear-left'] = int.from_bytes(message.data[0:2], byteorder='big')
             self.values['rear-right'] = int.from_bytes(message.data[2:4], byteorder='big')
             self.values['front-center'] = int.from_bytes(message.data[4:6], byteorder='big')
+        print("front-right", self.values['front-right'], "front-center", self.values['front-center'])
+
 
     def __str__(self):
         result = f"front [{self.values['front-left']}, {self.values['front-center']}, {self.values['front-right']}]"
