@@ -1,8 +1,20 @@
-<!doctype html>
-<html>
-  <body id="load">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>homepage</title>
+</head>
 
-    <h1>Welcome to Zilly team Website!</h1>
-    
-  </body>
+<body>
+{% block content %}
+<div class="container-fluid" >
+  <div class="justify-content-center mb-3 border-bottom">
+    <h2 class="text-center">World map for fire detection </h2>
+      <div class="col-md-8">
+        {{map|safe}}
+      </div>
+  </div>
+</div>
+{% endblock %}
+</body>
 </html>
