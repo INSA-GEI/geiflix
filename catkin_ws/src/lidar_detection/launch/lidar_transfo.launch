@@ -21,5 +21,7 @@
      name="lidar_3d_to_2d"
      output="screen" />
 
+   <include file="$(find lidar_camera_detection)/launch/affichage_calibration.launch" />
+
 </launch>
 

@@ -57,12 +57,16 @@ class MainWindow : public QMainWindow {
   *******************************************/
   void updateLoggingView();  // no idea why this can't connect automatically
 
- private slots:
+private slots:
+  void on_button_cam_with_pts_clicked(bool checked);
+
+private slots:
 
  private:
   Ui::MainWindowDesign ui;
   QNode qnode;
   ImageNode * imageNode ;
+  ImageNode * camLidarNode ;
 };
 
 }  // namespace boule_de_cristal

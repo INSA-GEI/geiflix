@@ -14,7 +14,7 @@
    <string>QRosApp</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources/images.qrc">
+   <iconset>
     <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
   </property>
   <property name="locale">
@@ -98,7 +98,7 @@
    <property name="minimumSize">
     <size>
      <width>325</width>
-     <height>451</height>
+     <height>513</height>
     </size>
    </property>
    <property name="allowedAreas">
@@ -269,6 +269,20 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="button_cam_with_pts">
+          <property name="text">
+           <string>Voir camera + pts du lidar</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="button_cam_with_IA">
+          <property name="text">
+           <string>Voir camera + IA + distance</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer_3">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -327,9 +341,7 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="../resources/images.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>action_Quit</sender>

@@ -19,7 +19,7 @@ namespace boule_de_cristal {
 class ImageNode : public QThread {
   Q_OBJECT
  public:
-  ImageNode();
+  ImageNode(std::string image_topic);
   virtual ~ImageNode();
   void imageCb(const sensor_msgs::ImageConstPtr &msg);
   void showCamera() ;
@@ -28,6 +28,8 @@ class ImageNode : public QThread {
   ros::NodeHandle nh ;
   image_transport::ImageTransport it ;
   image_transport::Subscriber image_sub_;
+
+  std::string image_topic ;
 
   bool camera_enabled ;
 

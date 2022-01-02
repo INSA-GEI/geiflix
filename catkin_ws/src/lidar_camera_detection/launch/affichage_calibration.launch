@@ -10,7 +10,8 @@
         name="lidar_camera_affichage"
         output="screen" />
 
-    <!-- run image view to display the projected points image -->
+      <!-- run image view to display the projected points image -->
+      <!--
     <node 
         name="camera_lidar_projection" 
         pkg="image_view"
@@ -18,8 +19,8 @@
         respawn="false"
         output="screen">
         
-        <!-- remap input topics -->
         <remap from="image" to="$(arg camera)/camera_lidar" />
-    </node>
+      </node>
+      -->
 
 </launch>

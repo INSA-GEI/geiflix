@@ -8,17 +8,18 @@
 
 namespace boule_de_cristal {
 
-ImageNode::ImageNode() : it(nh) {
+ImageNode::ImageNode(std::string image_topic) : it(nh) {
+    this->image_topic = image_topic ;
     camera_enabled = false ;
-    image_sub_ = it.subscribe("/usb_cam/image_raw", 1, &ImageNode::imageCb, this);
 }
 
 ImageNode::~ImageNode() {
-  cv::destroyWindow("Camera");
+  cv::destroyWindow(this->image_topic);
 }
 
 void ImageNode::showCamera() {
-  cv::namedWindow("Camera");
+  image_sub_ = it.subscribe(this->image_topic, 1, &ImageNode::imageCb, this);
+  cv::namedWindow(this->image_topic);
   camera_enabled = true ;
   ros::Rate r(10) ;
   while (camera_enabled)
@@ -30,7 +31,8 @@ void ImageNode::showCamera() {
 
 void ImageNode::hideCamera() {
   camera_enabled = false ;
-  cv::destroyWindow("Camera");
+  image_sub_.shutdown();
+  cv::destroyWindow(this->image_topic);
 }
 
 
@@ -44,7 +46,7 @@ void ImageNode::imageCb(const sensor_msgs::ImageConstPtr& msg) {
   }
 
   // Update GUI Window
-  cv::imshow("Camera", cv_ptr->image);
+  cv::imshow(this->image_topic, cv_ptr->image);
   cv::waitKey(30);
 }
 

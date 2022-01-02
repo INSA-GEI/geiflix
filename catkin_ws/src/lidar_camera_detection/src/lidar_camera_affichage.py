@@ -40,13 +40,13 @@ def affichage_lidar_camera(lidar_pointsCloud2D, camera_image, image_pub):
     colors = cmap(points2D[:, 3] / max_intensity) * 255
 
 
-    points2D = points2D.reshape(-1, 2)
+ 
     inrange = np.where((points2D[:, 0] >= 0) &
                        (points2D[:, 1] >= 0) &
                        (points2D[:, 0] < img.shape[1]) &
                        (points2D[:, 1] < img.shape[0]))
     points2D = points2D[inrange[0]].round().astype('int')
-
+    points2D = points2D.reshape(-1, 2)
 
     for i in range(len(points2D)):
         cv2.circle(img, tuple(points2D[i]), 2, tuple(colors[i]), -1)

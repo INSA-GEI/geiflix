@@ -85,7 +85,8 @@ void MainWindow::on_button_connect_clicked(bool check) {
       ui.button_connect->setEnabled(false);
       ui.button_list->setEnabled(true);
       ui.button_image->setEnabled(true);
-      imageNode = new ImageNode();
+      imageNode = new ImageNode("/usb_cam/image_raw");
+      camLidarNode = new ImageNode("/usb_cam/camera_lidar");
     }
   } else {
     if (!qnode.init(ui.line_edit_master->text().toStdString(),
@@ -98,7 +99,8 @@ void MainWindow::on_button_connect_clicked(bool check) {
       ui.line_edit_master->setReadOnly(true);
       ui.line_edit_host->setReadOnly(true);
       ui.line_edit_topic->setReadOnly(true);
-      imageNode = new ImageNode();
+      imageNode = new ImageNode("/usb_cam/image_raw");
+      camLidarNode = new ImageNode("/usb_cam/camera_lidar");
     }
   }
 }
@@ -199,8 +201,28 @@ void MainWindow::on_button_image_clicked(bool checked) {
     imageNode->hideCamera();
     ui.button_image->setText("Voir camera");
   }
+
+}
+void MainWindow::on_button_cam_with_pts_clicked(bool checked)
+{
+  QString button_text = ui.button_cam_with_pts->text() ;
+  if (button_text.compare("Voir camera + pts du lidar") == 0)
+  {
+    ui.button_cam_with_pts->setText("Fermer camera + pts du lidar");
+    camLidarNode->showCamera() ;
+  }
+  else
+  {
+    camLidarNode->hideCamera();
+    ui.button_cam_with_pts->setText("Voir camera + pts du lidar");
+  }
+
+
 }
 
+
 }  // namespace boule_de_cristal
+
+
 
 
