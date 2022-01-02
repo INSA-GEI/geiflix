@@ -10,8 +10,6 @@ import math
 from std_msgs.msg import Header
 import image_geometry
 import message_filters
-import cv2
-from cv_bridge import CvBridge, CvBridgeError
 import tf2_ros
 from tf2_sensor_msgs.tf2_sensor_msgs import do_transform_cloud
 from tf.transformations import euler_from_matrix
@@ -20,7 +18,6 @@ from tf.transformations import euler_from_matrix
 
 CAMERA_MODEL = image_geometry.PinholeCameraModel()
 FIRST_TIME = True
-CV_BRIDGE = CvBridge()
 TF_BUFFER = None
 TF_LISTENER = None
 
@@ -41,14 +38,9 @@ def point_cloud_transform(pointCloud):
 
 
 
-def callback(img_msg, camera_info, data, pub):
+def callback(camera_info, data, pub):
     global CAMERA_MODEL, FIRST_TIME, TF_BUFFER, TF_LISTENER
 
-    try:
-        img = CV_BRIDGE.imgmsg_to_cv2(img_msg, 'bgr8') 
-    except CvBridgeError as e:
-        rospy.logerr(e)
-        return
 
     if FIRST_TIME:
         FIRST_TIME = False
@@ -56,7 +48,7 @@ def callback(img_msg, camera_info, data, pub):
         TF_BUFFER = tf2_ros.Buffer()
         TF_LISTENER = tf2_ros.TransformListener(TF_BUFFER)
 
-
+    stamp = data.header.stamp
 
     data = point_cloud_transform(data)
 
@@ -86,11 +78,6 @@ def callback(img_msg, camera_info, data, pub):
 
     #points2D = [[CAMERA_MODEL.project3dToPixel(point), calcul_dist(point)] for point in points3D[:, :3]]
     points2D = np.asarray(points2D)
-    inrange = np.where((points2D[:, 0] >= 0) &
-                       (points2D[:, 1] >= 0) &
-                       (points2D[:, 0] < img.shape[1]) &
-                       (points2D[:, 1] < img.shape[0]))
-    points2D = points2D[inrange[0]].round().astype('int')
 
     fields = [PointField('x', 0, PointField.INT32, 1),
               PointField('y', 4, PointField.INT32, 1),
@@ -102,7 +89,7 @@ def callback(img_msg, camera_info, data, pub):
     header = Header()
     header.frame_id = "map"
     newData = pc2.create_cloud(header, fields, points2D)
-    newData.header.stamp = data.header.stamp
+    newData.header.stamp = stamp
     pub.publish(newData)
 
 
@@ -112,16 +99,14 @@ def main():
     rospy.init_node('LIDAR_3D_2D', anonymous=False)
     camera_info = '/usb_cam/camera_info'
     lidar_points = '/coordinates_close'
-    image = '/usb_cam/image_color'
 
     info_sub = message_filters.Subscriber(camera_info, CameraInfo)
-    image_sub = message_filters.Subscriber(image, Image)
     lidar_sub = message_filters.Subscriber(lidar_points, PointCloud2)
     
-    pub = rospy.Publisher("coordinates_lidar_2d", PointCloud2, queue_size=5)
+    pub = rospy.Publisher("coordinates_lidar_2d", PointCloud2, queue_size=1)
 
     ats = message_filters.ApproximateTimeSynchronizer(
-            [image_sub, info_sub, lidar_sub], queue_size=5, slop = 0.1)
+            [info_sub, lidar_sub], queue_size=1, slop = 0.1)
     ats.registerCallback(callback, pub)
 
 
