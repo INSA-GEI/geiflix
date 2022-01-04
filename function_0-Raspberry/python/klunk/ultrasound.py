@@ -3,9 +3,9 @@ CAN_ID1 = 0x000
 CAN_ID2 = 0x001
 CAN_IDS = [CAN_ID1, CAN_ID2]
 
-DEFAULT_THRESHOLD = 50
-
 class Ultrasound:
+
+    DEFAULT_THRESHOLD = 50
     
     def __init__(self):
         self.data = {

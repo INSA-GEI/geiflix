@@ -4,14 +4,15 @@ import klunk.motors as motors
 import klunk.ultrasound as us
 import klunk.lidar as lidar
 
-IDLE   = 0
-AUTO   = 1
-MANUAL = 2
-STOP   = 3
-UNSAFE = 4
-MODES  = [IDLE, AUTO, MANUAL, STOP, UNSAFE]
-
 class Car:
+        
+    IDLE   = 0
+    AUTO   = 1
+    MANUAL = 2
+    STOP   = 3
+    UNSAFE = 4
+    MODES  = [IDLE, AUTO, MANUAL, STOP, UNSAFE]
+
     def __init__(self, can_bus):
         #init engine
         self.speed = motors.SPEED_STOP
@@ -22,18 +23,14 @@ class Car:
         self.US = us.Ultrasound()
         self.lidar = lidar.Lidar()
         #init status
-        self.mode = IDLE
+        self._mode = Car.IDLE
 
     def send_motors_order(self):
         self.can_bus.send(can.motors_message(self.speed, self.steer))
 
 #engine commands
     def set_speed(self, speed):
-        #safety - to be set in avoidance
-        if self.is_safe() or self.mode == UNSAFE:
-            self.speed = speed
-        else:
-            self.speed = motors.SPEED_STOP
+        self.speed = speed
         self.send_motors_order()
 
     def brake(self):
@@ -56,11 +53,16 @@ class Car:
         self.set_steer(motors.righter(self.steer))
 
 #car status
-    def set_mode(self, new_mode):
-        self.mode = new_mode
+    @property
+    def mode(self):
+        return self._mode
 
-    def get_mode(self):
-        return self.mode
+    @mode.setter
+    def mode(self, value):
+        if(value in Car.MODES):
+            self._mode = value
+        else:
+            raise ValueError("Invalid mode")
 
     def is_stopped(self):
         return self.speed == motors.SPEED_STOP
@@ -80,11 +82,11 @@ class Car:
     def is_going_right(self):
         return self.steer > motors.STEER_STRAIGHT
 
-#sensor commands
-def update_us(self, message):
-    self.US.update(message)
+    #sensor commands
+    def update_us(self, message):
+        self.US.update(message)
 
-##### avoidance old treatment
+    ##### avoidance old treatment
 
 
     def is_safe(self):

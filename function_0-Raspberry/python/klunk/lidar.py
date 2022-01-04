@@ -25,7 +25,7 @@ class Lidar(Thread):
                 data, address = socket.recvfrom(1024)
                 if not data:
                     break
-                angle, distance = [float(n) for n in data.decode().split(',')]
+                angle, distance, taille = [float(n) for n in data.decode().split(',')]
 
                 self.scan[angle] = distance
 

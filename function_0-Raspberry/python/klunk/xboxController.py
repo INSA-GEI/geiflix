@@ -55,14 +55,6 @@ class XboxController(Thread):
                     elif self.joy.dpadUp() or self.joy.rightBumper():
                         print("UP")
                         self.car.faster()
-                    # Get out of unsafe mode
-                    elif self.car.unsafe and self.joy.Start():
-                        print("UNSAFE MODE DESACTIVATED")
-                        self.car.unsafe = False
-                    # Unsafe mode
-                    elif self.joy.rightThumbstick() and self.joy.leftThumbstick() and self.car.is_stopped():
-                        print("UNSAFE MODE ACTIVATED")
-                        self.car.unsafe = True
                 else:
                     rightTrigger = self.joy.rightTrigger()
                     leftTrigger = self.joy.leftTrigger()
@@ -101,14 +93,6 @@ class XboxController(Thread):
                         self.car.set_steer(klunk.motors.STEER_RIGHT_MIDDLE)
                     else:
                         self.car.set_steer(klunk.motors.STEER_RIGHT_FAR)
-
-                    if self.car.unsafe and self.joy.Start():
-                        print("SAFE MODE")
-                        self.car.unsafe = False
-                    elif self.joy.rightThumbstick() and self.joy.leftThumbstick() and \
-                        self.car.is_stopped() and not self.car.unsafe:
-                        print("UNSAFE MODE")
-                        self.car.unsafe = True
 
                 if self.joy.Y():
                     print("CHANGED INCREMENTAL MODE :", self.incremental)

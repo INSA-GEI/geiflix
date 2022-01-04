@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import socket
 
 print("C'est parti")
@@ -12,7 +13,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as server_socket:
         if not data:
             break
         print("Recieved data from IP", address)
-        angle, distance = [float(n) for n in data.decode().split(',')]
+        angle, distance, taille = [float(n) for n in data.decode().split(',')]
         print("Angle :", angle)
         print("Distance :", distance)
+        print("Taille :", taille)
         print()
