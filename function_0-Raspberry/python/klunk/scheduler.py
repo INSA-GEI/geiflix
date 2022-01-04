@@ -1,32 +1,25 @@
-from threading import Thread
-from can.interface import Bus
-
-import klunk
-import klunk.can
+import klunk as k
 import klunk.car
-import klunk.motors
-import klunk.xboxController as xC
 
-import xbox
-
-
-
-class scheduler(Thread):
-    def __init__(self,bus,car):
-        Thread.__init__(self)
-        self.bus = bus
+class scheduler():
+    def __init__(self, car):
         self.car = car
 
     def run(self):
         while True:
-            if self.car.mode == 'IDLE':
+            if self.car.mode == self.car.IDLE:
+                #wait
                 print("TBD")
-            elif self.car.mode == 'STOP':
+            elif self.car.mode == self.car.STOP:
+                #wait
                 print("TBD")
-            elif self.car.mode == 'MANUAL':
+            elif self.car.mode == self.car.UNSAFE:
+                #get manual order
                 print("TBD")
-            elif self.car.mode == 'AUTO':
+            elif self.car.mode == self.car.AUTO:
+                #get auto order
                 print("TBD")
-            elif self.car.mode == 'UNSAFE':
+            elif self.car.mode == self.car.MANUAL:
+                #get manual order
                 print("TBD")
                 
