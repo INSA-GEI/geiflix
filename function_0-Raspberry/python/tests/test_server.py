@@ -9,7 +9,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as server_socket:
 
     while True:
         data, address = server_socket.recvfrom(1024)
-    
+
         if not data:
             break
         print("Recieved data from IP", address)

@@ -46,8 +46,11 @@ class Car:
 
     @speed.setter
     def speed(self, speed):
-        self._speed = speed
-        self.send_motors_order()
+        if speed in motors.SPEEDS:
+            self._speed = speed
+            self.send_motors_order()
+        else:
+            raise ValueError("invalid speed value")
 
     def brake(self):
         self.speed = motors.SPEED_STOP
@@ -64,8 +67,11 @@ class Car:
 
     @steer.setter
     def steer(self, steer):
-        self._steer = steer
-        self.send_motors_order()
+        if steer in motors.STEERS:
+            self._steer = steer
+            self.send_motors_order()
+        else:
+            raise ValueError("invalid steer value")
 
     def lefter(self):
         self.steer = motors.lefter(self.steer)
