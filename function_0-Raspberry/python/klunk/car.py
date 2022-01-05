@@ -1,11 +1,13 @@
+from pickle import NONE
 import klunk as k
 import klunk.can as can
 import klunk.motors as motors
 import klunk.ultrasound as us
 import klunk.lidar as lidar
+import time
 
 class Car:
-        
+
     IDLE   = 0
     AUTO   = 1
     MANUAL = 2
@@ -22,8 +24,18 @@ class Car:
         #init sensors
         self.US = us.Ultrasound()
         self.lidar = lidar.Lidar()
+        self.lidar.start()
         #init status
         self._mode = Car.IDLE
+        self.destination = None
+
+    def ready(self):
+        WAIT_TIME = 0.5
+        self.steer = motors.STEER_LEFT_CLOSE
+        time.sleep(WAIT_TIME)
+        self.steer = motors.STEER_RIGHT_CLOSE
+        time.sleep(WAIT_TIME)
+        self.steer = motors.STEER_STRAIGHT
 
     def send_motors_order(self):
         self.can_bus.send(can.motors_message(self.speed, self.steer))

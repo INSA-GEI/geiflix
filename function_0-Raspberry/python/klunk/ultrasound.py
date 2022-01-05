@@ -24,7 +24,7 @@ class Ultrasound:
             self.rear_left = int.from_bytes(message.data[0:2], byteorder='big')
             self.rear_right = int.from_bytes(message.data[2:4], byteorder='big')
             self.front_center = int.from_bytes(message.data[4:6], byteorder='big')
-        print("front_right", self.front_right, "front_center", self.front_center)
+        #print("rear_right", self.rear_right, "rear_center", self.rear_center, "rear_left", self.rear_left)
 
 
     def __str__(self):

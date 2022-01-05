@@ -1,10 +1,11 @@
 # coding: utf-8
 import time
 import can
-import klunk as k
-import klunk.xboxController as xC
+import klunk
 import klunk.can
+import klunk.lidar
 import klunk.scheduler
+import xbox
 
 if __name__ == "__main__":
 
@@ -17,16 +18,13 @@ if __name__ == "__main__":
     except OSError:
         print('Cannot find PiCAN board.')
         exit()
-    car = k.car.Car(bus)
+    car = klunk.car.Car(bus)
 
-    xboxThread = xC.XboxController(bus,car)
-    xboxThread.start()
-    webThread = "TBD"
+    xboxJoystick = xbox.Joystick()
     canThread = klunk.can.Can(bus,car)
     canThread.start()
-    jetsonThread = "TBD"
 
-    scheduler = klunk.scheduler.Scheduler(car, xboxThread.joy)
-    while True:
-        scheduler.Safety()
-        time.sleep(0.1)
+    car.ready()
+
+    scheduler = klunk.scheduler.Scheduler(car, xboxJoystick)
+    scheduler.run()
