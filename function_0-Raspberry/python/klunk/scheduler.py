@@ -22,6 +22,7 @@ class Scheduler():
     AVOID_STEERING_TIME_THRESHOLD = 2.5
     AVOID_FLEE_TIME_THRESHOLD = 6
     AVOID_CORRECT_TIME_THRESHOLD = AVOID_FLEE_TIME_THRESHOLD
+    AVOID_AMOUNT_THRESHOLD = 5
 
     def __init__(self, car, joy):
         self.incremental = False
@@ -49,7 +50,7 @@ class Scheduler():
 # AUTO Mode
             elif self.car.mode == self.car.AUTO:
 
-                # Simplifed autonomous mode
+                # Simplified autonomous mode
                 speed_order = motors.SPEED_FAST
                 steer_order = motors.STEER_STRAIGHT
 
@@ -89,10 +90,10 @@ class Scheduler():
                 # waiting for instructions safely
 
                 # Switch mode
-                if not self.car.US.any_obstacle() and self.xbox.A():
+                if not self.isAzone() and self.xbox.A():
                     print("STOP -> AUTO")
                     self.car.mode = self.car.AUTO
-                if True:####### safe movement ordered
+                elif self.xbox.Start():
                     print("STOP -> MANUAL")
                     self.car.mode = self.car.MANUAL
 # UNSAFE Mode
@@ -140,6 +141,10 @@ class Scheduler():
 
 #Function for Safety V2
     def isSafe(self, speed_order, steer_order):
+        for obstacle in self.car.lidar.obstacles:
+            age, angle, distance, size = obstacle
+            if distance < 50:
+                print(f'{"+" if angle > 0 else "-"}{abs(int(angle)):03}° {int(distance):03}cm {int(size):03}cm {int((time.time() - age) * 1000):03} ms ago')
         if self.car.mode != self.car.UNSAFE and self.car.mode != self.car.IDLE:
             ZoneA = self.isAzone()
             ZoneB = self.isBzone()
@@ -155,20 +160,22 @@ class Scheduler():
             ZoneX = self.isXzone()
             ZoneY = self.isYzone()
             ZoneZ = self.isZzone()
+            print("A", ZoneA, "B", ZoneB, "C", ZoneC, "K", ZoneK, "L", ZoneL, "M", ZoneM, "N", ZoneN, \
+                "S", ZoneS, "T", ZoneT, "U", ZoneU, "V", ZoneV, "X", ZoneX, "Y", ZoneY, "Z", ZoneZ)
             if (self.car.mode == self.car.MANUAL \
                 or (self.car.mode == self.car.AUTO and not (self.avoid_right or self.avoid_left))):
 
-                if ZoneA and speed_order > motors.SPEED_STOP:
+                if ZoneA and (speed_order > motors.SPEED_STOP):
                     speed_order = motors.SPEED_STOP
                     if self.car.mode == self.car.AUTO:
                         self.car.mode = self.car.STOP
 
-                if ((ZoneB and speed_order) == motors.SPEED_REVERSE):
+                if ZoneB and (speed_order == motors.SPEED_REVERSE):
                     speed_order = motors.SPEED_STOP
                     if self.car.mode == self.car.AUTO:
                         self.car.mode = self.car.STOP
 
-                if ZoneC and speed_order == motors.SPEED_FAST:
+                if ZoneC and (speed_order == motors.SPEED_FAST):
                     speed_order = motors.SPEED_MEDIUM
 
                 if ZoneK or ZoneM:
@@ -190,7 +197,7 @@ class Scheduler():
                         speed_order = motors.SPEED_SLOW
 
                     if (steer_order == motors.STEER_LEFT_FAR) or (steer_order == motors.STEER_LEFT_MIDDLE):
-                        speed_order = motors.STEER_LEFT_CLOSE
+                        steer_order = motors.STEER_LEFT_CLOSE
 
                 if ZoneT or ZoneV:
                     if speed_order > motors.SPEED_SLOW:
@@ -223,83 +230,94 @@ class Scheduler():
                         if speed_order > motors.SPEED_STOP:
                             speed_order = motors.SPEED_STOP
                             self.car.mode = self.car.STOP
+                        self.avoid_amount = 0
 
                     elif ZoneX or ZoneY or ZoneZ:
-                        if speed_order > motors.SPEED_SLOW:
+                        if speed_order > motors.SPEED_STOP:
                             speed_order = motors.SPEED_SLOW
-                            if ZoneY:
+                            if self.avoid_amount < self.AVOID_AMOUNT_THRESHOLD:
+                                self.avoid_amount += 1
+                            elif ZoneY:
                                 self.avoid_right = True
                                 steer_order = motors.STEER_RIGHT_FAR
                             elif ZoneZ:
                                 self.avoid_left = True
                                 steer_order = motors.STEER_LEFT_FAR
-                            elif ZoneX:
+                            elif ZoneX:# By default, avoid to the left because left steering is better
+                                self.avoid_left = True
+                                steer_order = motors.STEER_LEFT_FAR
+                                '''
+                                tmp = self.car.lidar.searchObstacle(-15, 15, 80, 130)#recupérer l'obstacle le plus proche
                                 obstacle_distance = min(self.car.lidar.dist, self.car.US.front_center)
                                 if obstacle_distance < 50 and speed_order > motors.SPEED_STOP:
                                     speed_order = motors.SPEED_STOP
                                     self.car.mode = self.car.STOP
-                                elif self.isXZone_Lidar():
+                                elif self.isXzone_lidar():
                                     if self.car.lidar.angle < 0:
                                         self.avoid_right = True
                                         steer_order = motors.STEER_RIGHT_FAR
                                 else: # By default, avoid to the left
                                     self.avoid_left = True
-                                    steer_order = motors.STEER_LEFT_FAR
+                                    steer_order = motors.STEER_LEFT_FAR'''
+                    else:
+                        self.avoid_amount = 0
             # Avoidance
-            elif self.avoid_right:
-                # TODO: avoid au lieu de stop
-                speed_order = motors.SPEED_STOP
-            elif self.avoid_left:
+            elif self.avoid_left or self.avoid_right:
                 speed_order = motors.SPEED_SLOW
 
                 if self.avoid_state == self.NOT_AVOIDING:
                     self.avoid_state = self.AVOID_BEFORE_FLEE_STEERING
-                    steer_order = motors.STEER_LEFT_FAR
+                    steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
+                    speed_order = motors.SPEED_STOP
                     self.avoid_steering_time = time.time() + self.AVOID_STEERING_TIME_THRESHOLD
                 elif self.avoid_state == self.AVOID_BEFORE_FLEE_STEERING:
                     if time.time() >= self.avoid_steering_time:
                         self.avoid_state = self.AVOID_FLEE
+                        steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
                         self.avoid_flee_time = time.time()
                     else:
-                        steer_order = motors.STEER_LEFT_FAR
+                        steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
                         speed_order = motors.SPEED_STOP
                 elif self.avoid_state == self.AVOID_FLEE:
-                    if ZoneA or ZoneS:
+                    if ZoneA or (ZoneS if self.avoid_left else ZoneT):
                         speed_order = motors.SPEED_STOP
                         self.car.mode = self.car.STOP
                         self.stop_avoiding()
                     elif time.time() - self.avoid_flee_time >= self.AVOID_FLEE_TIME_THRESHOLD \
-                        and not (ZoneX or ZoneZ or ZoneL or ZoneT):
+                        and not (ZoneX or ((ZoneZ or ZoneL or ZoneT) if self.avoid_left else (ZoneY or ZoneS or ZoneK))):
                         self.avoid_state = self.AVOID_FLEE_CORRECT_STEERING
-                        steer_order = motors.STEER_RIGHT_FAR
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
+                        speed_order = motors.SPEED_STOP
+                        self.avoid_flee_time = time.time() - self.avoid_flee_time
                         self.avoid_steering_time = time.time() + 2 * self.AVOID_STEERING_TIME_THRESHOLD
                     else:
-                        steer_order = motors.STEER_LEFT_FAR
+                        steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
                 elif self.avoid_state == self.AVOID_FLEE_CORRECT_STEERING:
                     if time.time() >= self.avoid_steering_time:
                         self.avoid_state = self.AVOID_CORRECT
-                        self.avoid_flee_time = time.time() - self.avoid_flee_time
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
                         self.avoid_correct_time = time.time()
                     else:
-                        steer_order = motors.STEER_RIGHT_FAR
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
                         speed_order = motors.SPEED_STOP
                 elif self.avoid_state == self.AVOID_CORRECT:
-                    if ZoneA or ZoneT:
+                    if ZoneA or (ZoneT if self.avoid_left else ZoneS):
                         speed_order = motors.SPEED_STOP
                         self.car.mode = self.car.STOP
                         self.stop_avoiding()
-                    elif time.time() - self.avoid_flee_time >= self.AVOID_CORRECT_TIME_THRESHOLD \
+                    elif time.time() - self.avoid_correct_time >= self.AVOID_CORRECT_TIME_THRESHOLD \
                         and not (ZoneX or ZoneY or ZoneZ):
                         self.avoid_state = self.AVOID_CORRECT_FORWARD_STEERING
                         steer_order = motors.STEER_STRAIGHT
+                        speed_order = motors.SPEED_STOP
+                        self.avoid_correct_time = time.time() - self.avoid_correct_time
                         self.avoid_steering_time = time.time() + self.AVOID_STEERING_TIME_THRESHOLD
                     else:
-                        steer_order = motors.STEER_RIGHT_FAR
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
                 elif self.avoid_state == self.AVOID_CORRECT_FORWARD_STEERING:
                     if time.time() >= self.avoid_steering_time:
                         self.avoid_state = self.AVOID_FORWARD
                         steer_order = motors.STEER_STRAIGHT
-                        self.avoid_correct_time = time.time() - self.avoid_correct_time
                     else:
                         steer_order = motors.STEER_STRAIGHT
                         speed_order = motors.SPEED_STOP
@@ -308,51 +326,54 @@ class Scheduler():
                         speed_order = motors.SPEED_STOP
                         self.car.mode = self.car.STOP
                         self.stop_avoiding()
-                    elif not (ZoneX or ZoneZ or ZoneT or ZoneL):
+                    elif not (ZoneX or ((ZoneZ or ZoneT or ZoneL) if self.avoid_left else (ZoneY or ZoneS or ZoneK))):
                         self.avoid_state = self.AVOID_FORWARD_RETURN_STEERING
-                        steer_order = motors.STEER_RIGHT_FAR
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
+                        speed_order = motors.SPEED_STOP
                         self.avoid_steering_time = time.time() + self.AVOID_STEERING_TIME_THRESHOLD
                     else:
                         steer_order = motors.STEER_STRAIGHT
                 elif self.avoid_state == self.AVOID_FORWARD_RETURN_STEERING:
                     if time.time() >= self.avoid_steering_time:
                         self.avoid_state = self.AVOID_RETURN
-                        steer_order = motors.STEER_RIGHT_FAR
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
                         self.avoid_return_time = time.time()
                     else:
-                        steer_order = motors.STEER_RIGHT_FAR
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
                         speed_order = motors.SPEED_STOP
                 elif self.avoid_state == self.AVOID_RETURN:
-                    if ZoneA or ZoneT:
+                    if ZoneA or (ZoneT if self.avoid_left else ZoneS):
                         speed_order = motors.SPEED_STOP
                         self.car.mode = self.car.STOP
                         self.stop_avoiding()
                     elif time.time() - self.avoid_return_time >= self.avoid_correct_time \
-                        and not (ZoneX or ZoneY or ZoneT or ZoneK):
+                        and not (ZoneX or ((ZoneY or ZoneS or ZoneK) if self.avoid_left else (ZoneZ or ZoneT or ZoneL))):
                         self.avoid_state = self.AVOID_RETURN_END_STEERING
-                        steer_order = motors.STEER_LEFT_FAR
+                        steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
+                        speed_order = motors.SPEED_STOP
                         self.avoid_steering_time = time.time() + 2 * self.AVOID_STEERING_TIME_THRESHOLD
                     else:
-                        steer_order = motors.STEER_RIGHT_FAR
+                        steer_order = motors.STEER_RIGHT_FAR if self.avoid_left else motors.STEER_LEFT_FAR
                 elif self.avoid_state == self.AVOID_RETURN_END_STEERING:
                     if time.time() >= self.avoid_steering_time:
                         self.avoid_state = self.AVOID_END
-                        steer_order = motors.STEER_LEFT_FAR
+                        steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
                         self.avoid_end_time = time.time()
                     else:
-                        steer_order = motors.STEER_LEFT_FAR
+                        steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
                         speed_order = motors.SPEED_STOP
                 elif self.avoid_state == self.AVOID_END:
-                    if ZoneA or ZoneS:
+                    if ZoneA or (ZoneS if self.avoid_left else ZoneT):
                         speed_order = motors.SPEED_STOP
                         self.car.mode = self.car.STOP
                         self.stop_avoiding()
                     elif time.time() - self.avoid_end_time >= self.avoid_flee_time:
                         self.avoid_state = self.AVOID_AFTER_END_STEERING
                         steer_order = motors.STEER_STRAIGHT
+                        speed_order = motors.SPEED_STOP
                         self.avoid_steering_time = time.time() + self.AVOID_STEERING_TIME_THRESHOLD
                     else:
-                        steer_order = motors.STEER_LEFT_FAR
+                        steer_order = motors.STEER_LEFT_FAR if self.avoid_left else motors.STEER_RIGHT_FAR
                 elif self.avoid_state == self.AVOID_AFTER_END_STEERING:
                     if time.time() >= self.avoid_steering_time:
                         self.stop_avoiding()
@@ -367,6 +388,7 @@ class Scheduler():
         self.avoid_state = self.NOT_AVOIDING
         self.avoid_left = False
         self.avoid_right = False
+        self.avoid_amount = 0
 
     def isAzone(self):
         return self.car.US.front_center_obstacle(30) \
@@ -417,7 +439,7 @@ class Scheduler():
         return self.car.lidar.searchObstacle(90, 135, 0, 80)
 
     def isXzone_lidar(self):
-        return self.car.lidar.searchObstacle(-15, 15, 30, 80)
+        return self.car.lidar.searchObstacle(-15, 15, 80, 130)
 
     def isXzone_US(self):
         return self.car.US.front_center_obstacle(80) and not self.car.US.front_center_obstacle(30)
@@ -426,10 +448,10 @@ class Scheduler():
         return self.isXzone_US() or self.isXzone_lidar()
 
     def isYzone(self):
-        return (self.car.US.front_left_obstacle(70) and not self.car.US.front_left_obstacle(30)) or self.car.lidar.searchObstacle(-45, -15, 30, 80)
+        return (self.car.US.front_left_obstacle(70) and not self.car.US.front_left_obstacle(30)) or self.car.lidar.searchObstacle(-45, -15, 80, 120)
 
     def isZzone(self):
-        return (self.car.US.front_right_obstacle(70) and not self.car.US.front_right_obstacle(30)) or self.car.lidar.searchObstacle(15, 45, 30, 80)
+        return (self.car.US.front_right_obstacle(70) and not self.car.US.front_right_obstacle(30)) or self.car.lidar.searchObstacle(15, 45, 80, 120)
 
 #Function for Safety V1
     def usAzone(self):
