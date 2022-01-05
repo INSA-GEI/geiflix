@@ -19,7 +19,7 @@ class XboxController(Thread):
         self.joy = xbox.Joystick()
         self.bus = bus
         self.car = car
-        self.incremental = False
+        self.incremental = True
 
     def run(self):
         try:
@@ -36,7 +36,7 @@ class XboxController(Thread):
                         print("RIGHT")
                         # When asked to turn right while turning left: go straight
                         if self.car.steer < klunk.motors.STEER_STRAIGHT:
-                            self.car.set_steer(klunk.motors.STEER_STRAIGHT)
+                            self.car.steer = klunk.motors.STEER_STRAIGHT
                         else:
                             self.car.righter()
                     # Turn left
@@ -44,7 +44,7 @@ class XboxController(Thread):
                         print("LEFT")
                         # When asked to turn left while turning right: go straight
                         if self.car.steer > klunk.motors.STEER_STRAIGHT:
-                            self.car.set_steer(klunk.motors.STEER_STRAIGHT)
+                            self.car.steer = klunk.motors.STEER_STRAIGHT
                         else:
                             self.car.lefter()
                     # Speed down
@@ -64,35 +64,35 @@ class XboxController(Thread):
                         self.car.brake()
                     elif leftTrigger and not rightTrigger:
                         #print("REVERSE")
-                        self.car.set_speed(klunk.motors.SPEED_REVERSE)
+                        self.car.speed = klunk.motors.SPEED_REVERSE
                     elif rightTrigger < 0.25 or leftTrigger:
                         #print("NO ACTION -> STOP")
-                        self.car.set_speed(klunk.motors.SPEED_STOP)
+                        self.car.speed = klunk.motors.SPEED_STOP
                     elif rightTrigger < 0.5:
                         #print("SLOW SPEED")
-                        self.car.set_speed(klunk.motors.SPEED_SLOW)
+                        self.car.speed = klunk.motors.SPEED_SLOW
                     elif rightTrigger < 0.75:
                         #print("MEDIUM SPEED")
-                        self.car.set_speed(klunk.motors.SPEED_MEDIUM)
+                        self.car.speed = klunk.motors.SPEED_MEDIUM
                     else:
                         #print("FAST SPEED")
-                        self.car.set_speed(klunk.motors.SPEED_FAST)
+                        self.car.speed = klunk.motors.SPEED_FAST
 
                     joySteer = self.joy.leftX()
                     if joySteer < -0.75:
-                        self.car.set_steer(klunk.motors.STEER_LEFT_FAR)
+                        self.car.steer = klunk.motors.STEER_LEFT_FAR
                     elif joySteer < -0.5:
-                        self.car.set_steer(klunk.motors.STEER_LEFT_MIDDLE)
+                        self.car.steer = klunk.motors.STEER_LEFT_MIDDLE
                     elif joySteer < -0.25:
-                        self.car.set_steer(klunk.motors.STEER_LEFT_CLOSE)
+                        self.car.steer = klunk.motors.STEER_LEFT_CLOSE
                     elif joySteer < 0.25:
-                        self.car.set_steer(klunk.motors.STEER_STRAIGHT)
+                        self.car.steer = klunk.motors.STEER_STRAIGHT
                     elif joySteer < 0.5:
-                        self.car.set_steer(klunk.motors.STEER_RIGHT_CLOSE)
+                        self.car.steer = klunk.motors.STEER_RIGHT_CLOSE
                     elif joySteer < 0.75:
-                        self.car.set_steer(klunk.motors.STEER_RIGHT_MIDDLE)
+                        self.car.steer = klunk.motors.STEER_RIGHT_MIDDLE
                     else:
-                        self.car.set_steer(klunk.motors.STEER_RIGHT_FAR)
+                        self.car.steer = klunk.motors.STEER_RIGHT_FAR
 
                 if self.joy.Y():
                     print("CHANGED INCREMENTAL MODE :", self.incremental)

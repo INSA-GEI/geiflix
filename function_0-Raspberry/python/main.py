@@ -4,6 +4,7 @@ import can
 import klunk as k
 import klunk.xboxController as xC
 import klunk.can
+import klunk.scheduler
 
 if __name__ == "__main__":
 
@@ -25,3 +26,7 @@ if __name__ == "__main__":
     canThread.start()
     jetsonThread = "TBD"
 
+    scheduler = klunk.scheduler.Scheduler(car, xboxThread.joy)
+    while True:
+        scheduler.Safety()
+        time.sleep(0.1)

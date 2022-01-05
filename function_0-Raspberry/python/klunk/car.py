@@ -15,8 +15,8 @@ class Car:
 
     def __init__(self, can_bus):
         #init engine
-        self.speed = motors.SPEED_STOP
-        self.steer = motors.STEER_STRAIGHT
+        self._speed = motors.SPEED_STOP
+        self._steer = motors.STEER_STRAIGHT
         self.can_bus = can_bus
         self.send_motors_order()
         #init sensors
@@ -29,28 +29,38 @@ class Car:
         self.can_bus.send(can.motors_message(self.speed, self.steer))
 
 #engine commands
-    def set_speed(self, speed):
-        self.speed = speed
+    @property
+    def speed(self):
+        return self._speed
+
+    @speed.setter
+    def speed(self, speed):
+        self._speed = speed
         self.send_motors_order()
 
     def brake(self):
-        self.set_speed(motors.SPEED_STOP)
+        self.speed = motors.SPEED_STOP
 
     def faster(self):
-        self.set_speed(motors.faster(self.speed))
+        self.speed = motors.faster(self.speed)
 
     def slower(self):
-        self.set_speed(motors.slower(self.speed))
+        self.speed = motors.slower(self.speed)
 
-    def set_steer(self, steer):
-        self.steer = steer
+    @property
+    def steer(self):
+        return self._steer
+
+    @steer.setter
+    def steer(self, steer):
+        self._steer = steer
         self.send_motors_order()
 
     def lefter(self):
-        self.set_steer(motors.lefter(self.steer))
+        self.steer = motors.lefter(self.steer)
 
     def righter(self):
-        self.set_steer(motors.righter(self.steer))
+        self.steer = motors.righter(self.steer)
 
 #car status
     @property

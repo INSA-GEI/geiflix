@@ -1,6 +1,9 @@
 import math
 from threading import Thread
 import socket
+import time # TODO: Autre moyen d'enlever les obstacles disparus
+
+EXPIRATION = 5e+8 # 500 ms
 
 def cart2pol(x, y):
     rho = math.sqrt(x**2 + y**2)
@@ -15,7 +18,7 @@ def pol2cart(rho, phi):
 
 class Lidar(Thread):
     def __init__(self):
-        self.scan = {}
+        self.obstacles = []
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -25,7 +28,24 @@ class Lidar(Thread):
                 data, address = socket.recvfrom(1024)
                 if not data:
                     break
-                angle, distance, taille = [float(n) for n in data.decode().split(',')]
+                angle, distance, size = [float(n) for n in data.decode().split(',')]
 
-                self.scan[angle] = distance
+                obstacle = (time.time_ns(), angle, distance, size)
+                self.obstacles.append([])
+
+    def removeOldObstacles(self):
+        self.obstacles = [obstacle for obstacle in self.obstacles if time.time_ns() - obstacle[0] < EXPIRATION]
+
+    def findObstacle(self, minAngle, maxAngle, maxDistance):
+        self.removeOldObstacles()
+        for obstacle in self.obstacles:
+            age, angle, distance, size = obstacle
+            if distance > maxDistance:
+                continue
+            if minAngle <= maxAngle and (minAngle <= angle <= maxAngle):
+                return True
+            elif minAngle > maxAngle and ((angle >= minAngle) or (angle <= maxAngle)):
+                return True
+
+
 
