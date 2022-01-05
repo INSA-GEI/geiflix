@@ -4,6 +4,7 @@ import time
 # Klunk modules
 from . import car as kcar
 from . import motors
+from . import zone
 
 REFRESH_RATE = 0.1
 
@@ -25,6 +26,7 @@ class Scheduler():
     AVOID_FLEE_TIME_THRESHOLD = 6
     AVOID_CORRECT_TIME_THRESHOLD = AVOID_FLEE_TIME_THRESHOLD
     AVOID_AMOUNT_THRESHOLD = 5
+    AVOID_UNKNOWN_WAIT_THRESHOLD = 5
 
     def __init__(self, car):
         self.incremental = False
@@ -34,6 +36,20 @@ class Scheduler():
         else:
             raise TypeError("Invalid car or xbox controller")
         self.stop_avoiding()
+        self.zoneA = zone.Zone(zone.isAzone, self.car)
+        self.zoneB = zone.Zone(zone.isBzone, self.car)
+        self.zoneC = zone.Zone(zone.isCzone, self.car)
+        self.zoneK = zone.Zone(zone.isKzone, self.car)
+        self.zoneL = zone.Zone(zone.isLzone, self.car)
+        self.zoneM = zone.Zone(zone.isMzone, self.car)
+        self.zoneN = zone.Zone(zone.isNzone, self.car)
+        self.zoneS = zone.Zone(zone.isSzone, self.car)
+        self.zoneT = zone.Zone(zone.isTzone, self.car)
+        self.zoneU = zone.Zone(zone.isUzone, self.car)
+        self.zoneV = zone.Zone(zone.isVzone, self.car)
+        self.zoneX = zone.Zone(zone.isXzone, self.car)
+        self.zoneY = zone.Zone(zone.isYzone, self.car)
+        self.zoneZ = zone.Zone(zone.isZzone, self.car)
 
     def run(self):
         while True:
@@ -50,11 +66,12 @@ class Scheduler():
                 elif self.xbox.A():
                     print("IDLE -> AUTO")
                     self.car.mode = self.car.AUTO
+                    self.stop_avoiding()
 # AUTO Mode
             elif self.car.mode == self.car.AUTO:
 
                 # Simplified autonomous mode
-                speed_order = motors.SPEED_FAST
+                speed_order = motors.SPEED_MEDIUM
                 steer_order = motors.STEER_STRAIGHT
 
                 # Switch mode
@@ -96,9 +113,13 @@ class Scheduler():
                 if not self.isAzone() and self.xbox.A():
                     print("STOP -> AUTO")
                     self.car.mode = self.car.AUTO
+                    self.stop_avoiding()
                 elif self.xbox.Start():
                     print("STOP -> MANUAL")
                     self.car.mode = self.car.MANUAL
+                elif self.xbox.rightThumbstick() and self.xbox.leftThumbstick() and \
+                    self.car.is_stopped():
+                    print("STOP -> UNSAFE")
 # UNSAFE Mode
             elif self.car.mode == self.car.UNSAFE:
 
@@ -114,61 +135,33 @@ class Scheduler():
             self.car.steer = steer_order
             time.sleep(REFRESH_RATE)
 
-    def Safety(self, speed_order, steer_order):
-        if self.car.mode == self.car.UNSAFE:
-            return speed_order, steer_order
-        else:
-            ZoneA = self.usCzone() or self.lidarCzone()
-            ZoneB = self.usBzone() or self.lidarBzone()
-            ZoneC = self.usCzone() or self.lidarCzone()
-            ZoneE = self.lidarEzone()
-            ZoneF = self.lidarFzone()
-            ZoneK = self.usKzone() or self.lidarKzone()
-            ZoneL = self.usLzone() or self.lidarLzone()
-            ZoneM = self.usMzone() or self.lidarMzone()
-
-            if (ZoneA or ZoneB or ZoneC) and speed_order > motors.SPEED_STOP:
-                speed_order = motors.SPEED_STOP
-            elif (ZoneK or ZoneL or ZoneM) and speed_order < motors.SPEED_STOP:
-                speed_order = motors.SPEED_STOP
-
-            if ZoneE or ZoneF:
-                if speed_order == motors.SPEED_FAST:
-                    speed_order = motors.SPEED_MEDIUM
-                if ((steer_order == motors.STEER_RIGHT_FAR) or (steer_order == motors.STEER_RIGHT_MIDDLE)) and ZoneE:
-                    steer_order = motors.STEER_RIGHT_CLOSE
-                if ((steer_order == motors.STEER_LEFT_FAR) or (steer_order == motors.STEER_LEFT_MIDDLE)) and ZoneF:
-                    steer_order = motors.STEER_LEFT_CLOSE
-
-            return speed_order, steer_order
-
 #Function for Safety V2
     def isSafe(self, speed_order, steer_order):
         if self.car.mode != self.car.UNSAFE and self.car.mode != self.car.IDLE:
-            ZoneA = self.isAzone()
-            ZoneB = self.isBzone()
-            ZoneC = self.isCzone()
-            ZoneK = self.isKzone()
-            ZoneL = self.isLzone()
-            ZoneM = self.isMzone()
-            ZoneN = self.isNzone()
-            ZoneS = self.isSzone()
-            ZoneT = self.isTzone()
-            ZoneU = self.isUzone()
-            ZoneV = self.isVzone()
-            ZoneX = self.isXzone()
-            ZoneY = self.isYzone()
-            ZoneZ = self.isZzone()
-            print("A", ZoneA, "B", ZoneB, "C", ZoneC, "K", ZoneK, "L", ZoneL, "M", ZoneM, "N", ZoneN, \
-                "S", ZoneS, "T", ZoneT, "U", ZoneU, "V", ZoneV, "X", ZoneX, "Y", ZoneY, "Z", ZoneZ)
-            print(self.car.US)
-            print("#########################")
-            for obstacle in self.car.lidar.obstacles:
-                print(f"{int(obstacle[0]):03} {int(obstacle[1]):03} {int(obstacle[2]):03}")
-            for i in range(10 - len(self.car.lidar.obstacles)):
-                print()
+            ZoneA = self.zoneA.isZoneOccupied()
+            ZoneB = self.zoneB.isZoneOccupied()
+            ZoneC = self.zoneC.isZoneOccupied()
+            ZoneK = self.zoneK.isZoneOccupied()
+            ZoneL = self.zoneL.isZoneOccupied()
+            ZoneM = self.zoneM.isZoneOccupied()
+            ZoneN = self.zoneN.isZoneOccupied()
+            ZoneS = self.zoneS.isZoneOccupied()
+            ZoneT = self.zoneT.isZoneOccupied()
+            ZoneU = self.zoneU.isZoneOccupied()
+            ZoneV = self.zoneV.isZoneOccupied()
+            ZoneX = self.zoneX.isZoneOccupied()
+            ZoneY = self.zoneY.isZoneOccupied()
+            ZoneZ = self.zoneZ.isZoneOccupied()
+            #print("A", ZoneA, "B", ZoneB, "C", ZoneC, "K", ZoneK, "L", ZoneL, "M", ZoneM, "N", ZoneN, \
+            #    "S", ZoneS, "T", ZoneT, "U", ZoneU, "V", ZoneV, "X", ZoneX, "Y", ZoneY, "Z", ZoneZ)
+            #print(self.car.US)
+            #print("#########################")
+            #for obstacle in self.car.lidar.obstacles:
+            #    print(f"{int(obstacle[0]):03} {int(obstacle[1]):03} {int(obstacle[2]):03}")
+            #for i in range(10 - len(self.car.lidar.obstacles)):
+            #    print()
             if (self.car.mode == self.car.MANUAL \
-                or (self.car.mode == self.car.AUTO and not (self.avoid_right or self.avoid_left))):
+                or (self.car.mode == self.car.AUTO and not (self.avoid_right or self.avoid_left or self.avoid_unknown))):
 
                 if ZoneA and (speed_order > motors.SPEED_STOP):
                     speed_order = motors.SPEED_STOP
@@ -229,9 +222,7 @@ class Scheduler():
                 elif self.car.mode ==  self.car.AUTO:
                     if ((ZoneK or ZoneS) and ZoneZ) \
                         or ((ZoneL or ZoneT) and ZoneY) \
-                        or (ZoneY and ZoneZ) \
-                        or (ZoneX and ZoneZ) \
-                        or (ZoneX and ZoneY):
+                        or (ZoneY and ZoneZ):
                         if speed_order > motors.SPEED_STOP:
                             speed_order = motors.SPEED_STOP
                             self.car.mode = self.car.STOP
@@ -248,13 +239,34 @@ class Scheduler():
                             elif ZoneZ:
                                 self.avoid_left = True
                                 steer_order = motors.STEER_LEFT_FAR
+                            elif ZoneX:
+                                self.avoid_unknown = True
+                                self.avoid_unknown_wait = 0
+                                speed_order = motors.SPEED_STOP
+                            """
                             elif ZoneX:# By default, avoid to the left because left steering is better
                                 self.avoid_left = True
                                 steer_order = motors.STEER_LEFT_FAR
+                            """
                     else:
                         self.avoid_amount = 0
             # Avoidance
-            elif self.avoid_left or self.avoid_right:
+            elif (self.car.mode == self.car.AUTO) and self.avoid_unknown:
+                speed_order = motors.SPEED_STOP
+                if self.avoid_unknown_wait >= self.AVOID_UNKNOWN_WAIT_THRESHOLD:
+                    if ZoneA or (ZoneY and ZoneZ):
+                        self.car.mode = self.car.STOP
+                    elif ZoneY:
+                        self.avoid_right = True
+                        steer_order = motors.STEER_RIGHT_FAR
+                    else: # By default, avoid to the left because left steering is better
+                        self.avoid_left = True
+                        steer_order = motors.STEER_LEFT_FAR
+                    self.avoid_unknown = False
+                else:
+                    self.avoid_unknown_wait += 1
+
+            elif (self.car.mode == self.car.AUTO) and (self.avoid_left or self.avoid_right):
                 speed_order = motors.SPEED_SLOW
 
                 if self.avoid_state == self.NOT_AVOIDING:
@@ -380,121 +392,9 @@ class Scheduler():
         self.avoid_state = self.NOT_AVOIDING
         self.avoid_left = False
         self.avoid_right = False
+        self.avoid_unknown = False
+        self.avoid_unknown_wait = 0
         self.avoid_amount = 0
-
-    def isAzone(self):
-        return self.car.US.front_center_obstacle(30) \
-            or self.car.US.front_right_obstacle(30) \
-            or self.car.US.front_left_obstacle(30) \
-            or self.car.lidar.searchObstacle(-45, 45, 0, 80)
-
-    def isBzone(self):
-        return self.car.US.rear_center_obstacle(30) \
-            or self.car.US.rear_right_obstacle(30) \
-            or self.car.US.rear_left_obstacle(30) \
-            or self.car.lidar.searchObstacle(-180, -135, 0, 80) \
-            or self.car.lidar.searchObstacle(135, 180, 0, 80)
-
-    def isCzone(self):
-        US = (self.car.US.front_center_obstacle(100) and not self.car.US.front_center_obstacle(80)) \
-            or (self.car.US.front_right_obstacle(100) and not self.car.US.front_right_obstacle(70)) \
-            or (self.car.US.front_left_obstacle(100) and not self.car.US.front_left_obstacle(70))
-
-        Lidar = self.car.lidar.searchObstacle(-45, -15, 120, 150) \
-            or self.car.lidar.searchObstacle(15, 45, 120, 150) \
-            or self.car.lidar.searchObstacle(-15, 15, 130, 150)
-
-        return Lidar
-
-    def isKzone(self):
-        return self.car.lidar.searchObstacle(-90, -45, 80, 100)
-
-    def isLzone(self):
-        return self.car.lidar.searchObstacle(45, 90, 80, 100)
-
-    def isMzone(self):
-        return self.car.lidar.searchObstacle(-135, -90, 80, 100)
-
-    def isNzone(self):
-        return self.car.lidar.searchObstacle(90, 135, 80, 100)
-
-    def isSzone(self):
-        return self.car.lidar.searchObstacle(-90, -45, 0, 80)
-
-    def isTzone(self):
-        return self.car.lidar.searchObstacle(45, 90, 0, 80)
-
-    def isUzone(self):
-        return self.car.lidar.searchObstacle(-135, -90, 0, 80)
-
-    def isVzone(self):
-        return self.car.lidar.searchObstacle(90, 135, 0, 80)
-
-    def isXzone_lidar(self):
-        return self.car.lidar.searchObstacle(-15, 15, 80, 130)
-
-    def isXzone_US(self):
-        return self.car.US.front_center_obstacle(80) and not self.car.US.front_center_obstacle(30)
-
-    def isXzone(self):
-        return self.isXzone_US() or self.isXzone_lidar()
-
-    def isYzone(self):
-        return (self.car.US.front_left_obstacle(70) and not self.car.US.front_left_obstacle(30)) or self.car.lidar.searchObstacle(-45, -15, 80, 120)
-
-    def isZzone(self):
-        return (self.car.US.front_right_obstacle(70) and not self.car.US.front_right_obstacle(30)) or self.car.lidar.searchObstacle(15, 45, 80, 120)
-
-#Function for Safety V1
-    def usAzone(self):
-        return self.car.US.front_left_obstacle()
-    
-    def lidarAzone(self):
-        return self.car.lidar.searchObstacle(-45, -15, 0, 100)
-        return (self.car.lidar.angle <= -15) and (self.car.lidar.angle >= -45) and (self.car.lidar.dist <= 100)
-    
-    def usBzone(self):
-        return self.car.US.front_right_obstacle()
-    
-    def lidarBzone(self):
-        return self.car.lidar.searchObstacle(15, 45, 0, 100)
-        return (self.car.lidar.angle >= 15) and (self.car.lidar.angle <= 45) and (self.car.lidar.dist <= 100)
-
-    def usCzone(self):
-        return self.car.US.front_center_obstacle()
-    
-    def lidarCzone(self):
-        return self.car.lidar.searchObstacle(-15, 15, 0, 100)
-        return (self.car.lidar.angle <= 15) and (self.car.lidar.angle >= -15) and (self.car.lidar.dist <= 100)
-    
-    def usKzone(self):
-        return self.car.US.rear_left_obstacle()
-    
-    def lidarKzone(self):
-        return self.car.lidar.searchObstacle(-165, -135, 0, 100)
-        return (self.car.lidar.angle <= -165) and (self.car.lidar.angle >= -135) and (self.car.lidar.dist <= 100)
-    
-    def usLzone(self):
-        return self.car.US.rear_right_obstacle()
-    
-    def lidarLzone(self):
-        return self.car.lidar.searchObstacle(135, 165, 0, 100)
-        return (self.car.lidar.angle <= 165) and (self.car.lidar.angle >= 135) and (self.car.lidar.dist <= 100)
-    
-    def usMzone(self):
-        return self.car.US.rear_center_obstacle()
-    
-    def lidarMzone(self):
-        return self.car.lidar.searchObstacle(165, -165, 0, 100)
-        return ((self.car.lidar.angle <= -165) or (self.car.lidar.angle >= 165)) and (self.car.lidar.dist <= 100)
-    
-    def lidarEzone(self):
-        return self.car.lidar.searchObstacle(45, 135, 0, 100)
-        return (self.car.lidar.angle <= 135) and (self.car.lidar.angle >= 45)
-
-    def lidarFzone(self):
-        return self.car.lidar.searchObstacle(-135, -45, 0, 100)
-        return (self.car.lidar.angle >= -135) and (self.car.lidar.angle <= -45)
 
     def get_manual_order(self):
         # Warning: instructions are ordered by priority
