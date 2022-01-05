@@ -1,20 +1,6 @@
 import math
 from threading import Thread
 import socket
-import time # TODO: Autre moyen d'enlever les obstacles disparus
-
-EXPIRATION = 0.5 # 500 ms
-
-def cart2pol(x, y):
-    rho = math.sqrt(x**2 + y**2)
-    phi = math.atan2(y, x)
-    return(rho, phi)
-
-def pol2cart(rho, phi):
-    x = rho * math.cos(phi)
-    y = rho * math.sin(phi)
-    return(x, y)
-
 
 class Lidar(Thread):
     def __init__(self):
@@ -23,29 +9,33 @@ class Lidar(Thread):
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            sock.settimeout(0.5)
             sock.bind(('', 6666))
             print("Lidar socket bound")
 
             while True:
-                try:
-                    data, address = sock.recvfrom(1024)
-                    if not data:
-                        break
-                    angle, distance, size = [float(n) for n in data.decode().split(',')]
-                    obstacle = (time.time(), -angle, 100*distance, 100*size)
-                    self.obstacles.append(obstacle)
-                except socket.timeout:
-                    pass
-                self.removeOldObstacles()
-    def removeOldObstacles(self):
-        self.obstacles = [obstacle for obstacle in self.obstacles if time.time() - obstacle[0] < EXPIRATION]
+                data, address = sock.recvfrom(1024)
+                if not data:
+                    break
+
+                data = data.decode()
+                obstacle_amount, data = data.split(',', 1)
+
+                new_obstacles = []
+                #print("################", int(obstacle_amount), "obstacles detected")
+                for i in range(int(obstacle_amount)):
+                    angle, distance, size, data = data.split(',', 3)
+                    obstacle = (-math.degrees(float(angle)), 100 * float(distance), 100 * float(size))
+                    new_obstacles.append(obstacle)
+                    #print(f"{int(obstacle[0]):03} {int(obstacle[1]):03} {int(obstacle[2]):03}")
+                #for i in range(10 - int(obstacle_amount)):
+                    #print()
+                self.obstacles = new_obstacles
 
     def searchObstacle(self, minAngle, maxAngle, minDistance, maxDistance):
         res = False
 
         for obstacle in self.obstacles:
-            _, angle, distance, size = obstacle
+            angle, distance, size = obstacle
 
             if  (minDistance <= distance <= maxDistance) and \
                 ( (minAngle <= maxAngle and minAngle <= angle <= maxAngle)  \

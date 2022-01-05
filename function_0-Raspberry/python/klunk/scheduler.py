@@ -1,7 +1,9 @@
-import klunk.motors as motors
-import klunk.car
 import xbox
 import time
+
+# Klunk modules
+from . import car as kcar
+from . import motors
 
 REFRESH_RATE = 0.1
 
@@ -24,12 +26,13 @@ class Scheduler():
     AVOID_CORRECT_TIME_THRESHOLD = AVOID_FLEE_TIME_THRESHOLD
     AVOID_AMOUNT_THRESHOLD = 5
 
-    def __init__(self, car, joy):
+    def __init__(self, car):
         self.incremental = False
-        if isinstance(car, klunk.car.Car):
+        self.xbox = xbox.Joystick()
+        if isinstance(car, kcar.Car):
             self.car = car
-        if isinstance(joy, xbox.Joystick):
-            self.xbox = joy
+        else:
+            raise TypeError("Invalid car or xbox controller")
         self.stop_avoiding()
 
     def run(self):
@@ -141,10 +144,6 @@ class Scheduler():
 
 #Function for Safety V2
     def isSafe(self, speed_order, steer_order):
-        for obstacle in self.car.lidar.obstacles:
-            age, angle, distance, size = obstacle
-            if distance < 50:
-                print(f'{"+" if angle > 0 else "-"}{abs(int(angle)):03}° {int(distance):03}cm {int(size):03}cm {int((time.time() - age) * 1000):03} ms ago')
         if self.car.mode != self.car.UNSAFE and self.car.mode != self.car.IDLE:
             ZoneA = self.isAzone()
             ZoneB = self.isBzone()
@@ -162,6 +161,12 @@ class Scheduler():
             ZoneZ = self.isZzone()
             print("A", ZoneA, "B", ZoneB, "C", ZoneC, "K", ZoneK, "L", ZoneL, "M", ZoneM, "N", ZoneN, \
                 "S", ZoneS, "T", ZoneT, "U", ZoneU, "V", ZoneV, "X", ZoneX, "Y", ZoneY, "Z", ZoneZ)
+            print(self.car.US)
+            print("#########################")
+            for obstacle in self.car.lidar.obstacles:
+                print(f"{int(obstacle[0]):03} {int(obstacle[1]):03} {int(obstacle[2]):03}")
+            for i in range(10 - len(self.car.lidar.obstacles)):
+                print()
             if (self.car.mode == self.car.MANUAL \
                 or (self.car.mode == self.car.AUTO and not (self.avoid_right or self.avoid_left))):
 
@@ -246,19 +251,6 @@ class Scheduler():
                             elif ZoneX:# By default, avoid to the left because left steering is better
                                 self.avoid_left = True
                                 steer_order = motors.STEER_LEFT_FAR
-                                '''
-                                tmp = self.car.lidar.searchObstacle(-15, 15, 80, 130)#recupérer l'obstacle le plus proche
-                                obstacle_distance = min(self.car.lidar.dist, self.car.US.front_center)
-                                if obstacle_distance < 50 and speed_order > motors.SPEED_STOP:
-                                    speed_order = motors.SPEED_STOP
-                                    self.car.mode = self.car.STOP
-                                elif self.isXzone_lidar():
-                                    if self.car.lidar.angle < 0:
-                                        self.avoid_right = True
-                                        steer_order = motors.STEER_RIGHT_FAR
-                                else: # By default, avoid to the left
-                                    self.avoid_left = True
-                                    steer_order = motors.STEER_LEFT_FAR'''
                     else:
                         self.avoid_amount = 0
             # Avoidance
@@ -394,14 +386,14 @@ class Scheduler():
         return self.car.US.front_center_obstacle(30) \
             or self.car.US.front_right_obstacle(30) \
             or self.car.US.front_left_obstacle(30) \
-            or self.car.lidar.searchObstacle(-45, 45, 40, 80)
+            or self.car.lidar.searchObstacle(-45, 45, 0, 80)
 
     def isBzone(self):
         return self.car.US.rear_center_obstacle(30) \
             or self.car.US.rear_right_obstacle(30) \
             or self.car.US.rear_left_obstacle(30) \
-            or self.car.lidar.searchObstacle(-180, -135, 40, 80) \
-            or self.car.lidar.searchObstacle(135, 180, 40, 80)
+            or self.car.lidar.searchObstacle(-180, -135, 0, 80) \
+            or self.car.lidar.searchObstacle(135, 180, 0, 80)
 
     def isCzone(self):
         US = (self.car.US.front_center_obstacle(100) and not self.car.US.front_center_obstacle(80)) \
@@ -412,7 +404,7 @@ class Scheduler():
             or self.car.lidar.searchObstacle(15, 45, 120, 150) \
             or self.car.lidar.searchObstacle(-15, 15, 130, 150)
 
-        return US or Lidar
+        return Lidar
 
     def isKzone(self):
         return self.car.lidar.searchObstacle(-90, -45, 80, 100)
@@ -512,69 +504,69 @@ class Scheduler():
             # Emergency stop
             if self.xbox.B():
                 print("EMERGENCY STOP")
-                speed_order = klunk.motors.SPEED_STOP
+                speed_order = motors.SPEED_STOP
             # Turn right
             elif self.xbox.dpadRight():
                 print("RIGHT")
                 # When asked to turn right while turning left: go straight
-                if self.car.steer < klunk.motors.STEER_STRAIGHT:
-                    steer_order = klunk.motors.STEER_STRAIGHT
+                if self.car.steer < motors.STEER_STRAIGHT:
+                    steer_order = motors.STEER_STRAIGHT
                 else:
-                    steer_order = klunk.motors.righter(self.car.steer)
+                    steer_order = motors.righter(self.car.steer)
             # Turn left
             elif self.xbox.dpadLeft():
                 print("LEFT")
                 # When asked to turn left while turning right: go straight
-                if self.car.steer > klunk.motors.STEER_STRAIGHT:
-                    steer_order = klunk.motors.STEER_STRAIGHT
+                if self.car.steer > motors.STEER_STRAIGHT:
+                    steer_order = motors.STEER_STRAIGHT
                 else:
-                    steer_order = klunk.motors.lefter(self.car.steer)
+                    steer_order = motors.lefter(self.car.steer)
             # Speed down
             elif self.xbox.dpadDown() or self.xbox.leftBumper():
                 print("DOWN")
-                speed_order = klunk.motors.slower(self.car.speed)
+                speed_order = motors.slower(self.car.speed)
             # Speed up
             elif self.xbox.dpadUp() or self.xbox.rightBumper():
                 print("UP")
-                speed_order = klunk.motors.faster(self.car.speed)
+                speed_order = motors.faster(self.car.speed)
         else: # Linear mode
             rightTrigger = self.xbox.rightTrigger()
             leftTrigger = self.xbox.leftTrigger()
 
             if self.xbox.B():
                 #print("BRAKE")
-                speed_order = klunk.motors.SPEED_STOP
+                speed_order = motors.SPEED_STOP
             elif leftTrigger and not rightTrigger:
                 #print("REVERSE")
-                speed_order = klunk.motors.SPEED_REVERSE
+                speed_order = motors.SPEED_REVERSE
             elif rightTrigger < 0.25 or leftTrigger:
                 #print("NO ACTION -> STOP")
-                speed_order = klunk.motors.SPEED_STOP
+                speed_order = motors.SPEED_STOP
             elif rightTrigger < 0.5:
                 #print("SLOW SPEED")
-                speed_order = klunk.motors.SPEED_SLOW
+                speed_order = motors.SPEED_SLOW
             elif rightTrigger < 0.75:
                 #print("MEDIUM SPEED")
-                speed_order = klunk.motors.SPEED_MEDIUM
+                speed_order = motors.SPEED_MEDIUM
             else:
                 #print("FAST SPEED")
-                speed_order = klunk.motors.SPEED_FAST
+                speed_order = motors.SPEED_FAST
 
             joySteer = self.xbox.leftX()
             if joySteer < -0.75:
-                steer_order = klunk.motors.STEER_LEFT_FAR
+                steer_order = motors.STEER_LEFT_FAR
             elif joySteer < -0.5:
-                steer_order = klunk.motors.STEER_LEFT_MIDDLE
+                steer_order = motors.STEER_LEFT_MIDDLE
             elif joySteer < -0.25:
-                steer_order = klunk.motors.STEER_LEFT_CLOSE
+                steer_order = motors.STEER_LEFT_CLOSE
             elif joySteer < 0.25:
-                steer_order = klunk.motors.STEER_STRAIGHT
+                steer_order = motors.STEER_STRAIGHT
             elif joySteer < 0.5:
-                steer_order = klunk.motors.STEER_RIGHT_CLOSE
+                steer_order = motors.STEER_RIGHT_CLOSE
             elif joySteer < 0.75:
-                steer_order = klunk.motors.STEER_RIGHT_MIDDLE
+                steer_order = motors.STEER_RIGHT_MIDDLE
             else:
-                steer_order = klunk.motors.STEER_RIGHT_FAR
+                steer_order = motors.STEER_RIGHT_FAR
 
         if self.xbox.Y():
             self.incremental = not self.incremental

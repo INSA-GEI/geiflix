@@ -1,13 +1,12 @@
-from pickle import NONE
-import klunk as k
-import klunk.can as can
-import klunk.motors as motors
-import klunk.ultrasound as us
-import klunk.lidar as lidar
 import time
+import can
+
+# Klunk modules
+from . import motors
+from . import ultrasound
+from . import lidar
 
 class Car:
-
     IDLE   = 0
     AUTO   = 1
     MANUAL = 2
@@ -15,20 +14,25 @@ class Car:
     UNSAFE = 4
     MODES  = [IDLE, AUTO, MANUAL, STOP, UNSAFE]
 
-    def __init__(self, can_bus):
+    def __init__(self):
+        #init communication
+        self.can_bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
+
         #init engine
         self._speed = motors.SPEED_STOP
         self._steer = motors.STEER_STRAIGHT
-        self.can_bus = can_bus
         self.send_motors_order()
+
         #init sensors
-        self.US = us.Ultrasound()
+        self.US = ultrasound.Ultrasound(self.can_bus)
+        self.US.start()
         self.lidar = lidar.Lidar()
         self.lidar.start()
+
         #init status
         self.mode = Car.IDLE
 
-    def ready(self):
+    def hello_sequence(self):
         WAIT_TIME = 0.5
         self.steer = motors.STEER_LEFT_CLOSE
         time.sleep(WAIT_TIME)
@@ -37,7 +41,9 @@ class Car:
         self.steer = motors.STEER_STRAIGHT
 
     def send_motors_order(self):
-        self.can_bus.send(can.motors_message(self.speed, self.steer))
+        motors_order = can.Message(arbitration_id=motors.CAN_ID, data=[self.speed, self.steer], is_extended_id=False)
+        self.can_bus.send(motors_order)
+
 
 #engine commands
     @property
