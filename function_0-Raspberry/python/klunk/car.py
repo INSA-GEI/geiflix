@@ -26,8 +26,7 @@ class Car:
         self.lidar = lidar.Lidar()
         self.lidar.start()
         #init status
-        self._mode = Car.IDLE
-        self.destination = None
+        self.mode = Car.IDLE
 
     def ready(self):
         WAIT_TIME = 0.5
@@ -83,6 +82,8 @@ class Car:
     def mode(self, value):
         if(value in Car.MODES):
             self._mode = value
+            with open('/var/www/Klunk/mode.txt', 'w') as file:
+                file.write(["IDLE", "AUTO", "MANUAL", "STOP", "UNSAFE"][self.mode])
         else:
             raise ValueError("Invalid mode")
 

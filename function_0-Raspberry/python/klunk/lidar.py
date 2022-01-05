@@ -38,7 +38,7 @@ class Lidar(Thread):
     def removeOldObstacles(self):
         self.obstacles = [obstacle for obstacle in self.obstacles if time.time_ns() - obstacle[0] < EXPIRATION]
 
-    def searchObstacle(self, minAngle, maxAngle, maxDistance):
+    def searchObstacle(self, minAngle, maxAngle, minDistance, maxDistance):
         self.removeOldObstacles()
         for obstacle in self.obstacles:
             age, angle, distance, size = obstacle
