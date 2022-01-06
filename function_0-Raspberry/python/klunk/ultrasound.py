@@ -3,9 +3,9 @@ CAN_ID1 = 0x000
 CAN_ID2 = 0x001
 CAN_IDS = [CAN_ID1, CAN_ID2]
 
+DEFAULT_THRESHOLD = 50
+
 class Ultrasound:
-    # An obstacle is detected if ultrasound value less than this threshold
-    OBSTACLE_THRESHOLD = 50
     
     def __init__(self):
         self.data = {
@@ -35,28 +35,34 @@ class Ultrasound:
         result += f"rear  [{self.data['rear-left']}, {self.data['rear-center']}, {self.data['rear-right']}]"
         return result
 
-    def front_left_obstacle(self):
-        return self.data['front-left'] < Ultrasound.OBSTACLE_THRESHOLD
+    def front_left_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.data['front-left'] < threshold
 
-    def front_right_obstacle(self):
-        return self.data['front-right'] < Ultrasound.OBSTACLE_THRESHOLD
+    def front_right_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.data['front-right'] < threshold
 
-    def front_center_obstacle(self):
-        return self.data['front-center'] < Ultrasound.OBSTACLE_THRESHOLD
+    def front_center_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.data['front-center'] < threshold
 
-    def front_obstacle(self):
-        return self.front_left_obstacle() or self.front_right_obstacle() \
-                or self.front_center_obstacle()
+    def front_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.front_left_obstacle(threshold) \
+            or self.front_right_obstacle(threshold) \
+            or self.front_center_obstacle(threshold)
 
-    def rear_left_obstacle(self):
-        return self.data['rear-left'] < Ultrasound.OBSTACLE_THRESHOLD
+    def rear_left_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.data['rear-left'] < threshold
 
-    def rear_right_obstacle(self):
-        return self.data['rear-right'] < Ultrasound.OBSTACLE_THRESHOLD
+    def rear_right_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.data['rear-right'] < threshold
 
-    def rear_center_obstacle(self):
-        return self.data['rear-center'] < Ultrasound.OBSTACLE_THRESHOLD
+    def rear_center_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.data['rear-center'] < threshold
 
-    def rear_obstacle(self):
-        return self.rear_left_obstacle() or self.rear_right_obstacle() \
-                or self.rear_center_obstacle()
+    def rear_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.rear_left_obstacle(threshold) \
+            or self.rear_right_obstacle(threshold) \
+            or self.rear_center_obstacle(threshold)
+
+    def any_obstacle(self, threshold = DEFAULT_THRESHOLD):
+        return self.front_obstacle(threshold) \
+            or self.rear_obstacle(threshold)

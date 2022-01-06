@@ -22,7 +22,7 @@ class Car:
         self.US = us.Ultrasound()
         self.lidar = lidar.Lidar()
         #init status
-        self.mode = 'IDLE'
+        self.mode = IDLE
 
     def send_motors_order(self):
         self.can_bus.send(can.motors_message(self.speed, self.steer))
