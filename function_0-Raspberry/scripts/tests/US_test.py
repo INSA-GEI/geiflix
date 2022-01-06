@@ -62,32 +62,40 @@ try:
 			# print(message)
 			if (distance > 50):
 				obstacle=False
+				
 			else :
-				obstacle=True
-
+				msg = can.Message(arbitration_id=0x010,data=[0xBC,0xBC,0x00, 0x00, 0x00, 0x00,0x41,0x19],extended_id=False) # tourner un peu gauche
+			    bus.send(msg)
 		if (msg.arbitration_id == US2) and (obstacle==False):
 			# ultrason avant centre
 			distance = int.from_bytes(msg.data[4:6], byteorder='big')
 			# message = "AvC:" + str(distance)+ ";"
 			# print(message)
 			if distance > 50:
+			    obstacle=False
+			else :
+				msg = can.Message(arbitration_id=0x010,data=[0xBC,0xBC,0x00, 0x00, 0x00, 0x00,0x41,0x4B],extended_id=False) # tourner un peu a droite
+			    bus.send(msg)
+		if (msg.arbitration_id == US1) and (obstacle==False):
+			# ultrason avant gauche
+			distance = int.from_bytes(msg.data[0:2], byteorder='big')
+			# message = "AvC:" + str(distance)+ ";"
+			# print(message)
+			if distance > 50:
 				obstacle=False
 			else :
-				obstacle=True
+				msg = can.Message(arbitration_id=0x010,data=[0xBC,0xBC,0x00, 0x00, 0x00, 0x00,0x41,0x4B],extended_id=False) # tourner un peu a droite
+			    bus.send(msg)
     
-		if obstacle==True:
-			msg = can.Message(arbitration_id=0x010,data=[0x00,0x00,0x00, 0x00, 0x00, 0x00,0x00, 0x00],extended_id=False)
+		if obstacle==False:
+			msg = can.Message(arbitration_id=0x010,data=[0xBC,0xBC,0x00, 0x00, 0x00, 0x00,0x00, 0x00],extended_id=False) # juste avance  60 rpm 
 			bus.send(msg)
-		else :
-			msg = can.Message(arbitration_id=0x010,data=[0xBA,0xBA,0x00, 0x00, 0x00, 0x00,0x00, 0x00],extended_id=False)
-			bus.send(msg)
+		
 		#count +=1
 		#time.sleep(0.1)
 		# GPIO.output(led,False)
 		#time.sleep(0.1)
 		#print(count)
-
-
 
 except KeyboardInterrupt:
 	#Catch keyboard interrupt
