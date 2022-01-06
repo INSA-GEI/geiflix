@@ -261,10 +261,10 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan)
 		AVC = read_us(hcan->pRxMsg->Data[5]);
 		ARG = read_us(hcan->pRxMsg->Data[1]);
 		ARD = read_us(hcan->pRxMsg->Data[3]);
-		if((AVC<50) && (tmpLRM>50) && (AVC!=0)){			//si obstacle détecte sur Avant Centre et la voiture avance
+		if((AVC<80) && (tmpLRM>50) && (AVC!=0)){			//si obstacle détecte sur Avant Centre et la voiture avance
 			obstacle = 1;
 			stop_voiture();
-		}else if((ARG<50) && (tmpLRM<50) && (ARG!=0)){
+		}else if((ARG<80) && (tmpLRM<50) && (ARG!=0)){
 			obstacle = 1;
 			stop_voiture();
 		}else{
