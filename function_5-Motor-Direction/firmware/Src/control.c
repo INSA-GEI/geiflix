@@ -55,6 +55,7 @@
 
 extern double alpha;
 extern int pos_OK;
+int CHANGE_TO_STOP=0;
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -370,7 +371,14 @@ void movement_with_GPS(double lat1, double lon1, double lat2, double lon2) {
  * retval	None
  * */
 void turn360(void) {
-	steering_set_position(GPIO_PIN_SET, HARD_L);
-	wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (60*(100+(2*DIFF_LARGE)/3))/100, (60*(100-DIFF_LARGE/3))/100);
+	if (!CHANGE_TO_STOP){
+		steering_set_position(GPIO_PIN_SET, HARD_R);
+		wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, RUN);
+	}
+	else{
+		wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, STOP);
+		steering_set_position(GPIO_PIN_SET, STRAIGHT);
+	}
+	//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (60*(100+(2*DIFF_LARGE)/3))/100, (60*(100-DIFF_LARGE/3))/100);
 }
 

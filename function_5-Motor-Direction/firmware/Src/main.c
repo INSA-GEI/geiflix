@@ -59,7 +59,7 @@
  * 3- Trames 0x030 (GPS)
  */
 
-#define MODE 3
+#define MODE 4
 
 /* USER CODE END Includes */
 
@@ -280,24 +280,29 @@ int main(void)
 			#elif (MODE == 2)
                 car_control(modeSpeed, modeSteer);
 
-			#else
+			#elif (MODE == 3)
                 if (latDegDes != 0.0) {
                 	destLatitude = dms2dd(latDegDes, latMinDes, latSecDes, latTenDes);
                 	destLongitude = dms2dd(lonDegDes, lonMinDes, lonSecDes, lonTenDes);
-                	dest_coordinates_to_zero();
                 }
                 if (latDegPos != 0.0) {
 					carLatitude = dms2dd(latDegPos, latMinPos, latSecPos, latTenPos);
 					carLongitude = dms2dd(lonDegPos, lonMinPos, lonSecPos, lonTenPos);
-					car_coordinates_to_zero();
 					dist = get_distance(carLatitude, carLongitude, destLatitude, destLongitude);
 					pos_OK = 0;
                 	while (pos_OK == 0) {
 						dist = go_straight_without_GPS(dist);
 						//movement_with_GPS(carLatitude, carLongitude, goLatitude, goLongitude);
 					}
-					//turn360();
+                	//turn360();
                 }
+                if (pos_OK==1){
+                	dest_coordinates_to_zero();
+					car_coordinates_to_zero();
+                }
+			#else
+                //steering_set_position(GPIO_PIN_SET, 50);
+                turn360();
 			#endif
         }
 
@@ -305,14 +310,14 @@ int main(void)
         // Envoi des mesures
         if (SEND_CAN) {
             SEND_CAN = 0;
-            data[0] = (ADCBUF[1] >> 8) & 0xFF; // Vol_mes
+            data[0] = (ADCBUF[1] >> 8) & 0xFF; // ACK chemin reçu
             data[1] = ADCBUF[1] & 0xFF;
             
-            data[2] = (ADCBUF[0] >> 8) & 0xFF; // Bat_mes
-            data[3] =  ADCBUF[0] & 0xFF;
+            data[2] = (pos_OK>> 8) & 0xFF; // ACK position OK
+            data[3] =  pos_OK & 0xFF;
             
-            data[4] = (pos_OK >> 8) & 0xFF; // pos_OK
-            data[5] = pos_OK & 0xFF;
+            data[4] = (ADCBUF[0] >> 8) & 0xFF; // niveau de batterie
+            data[5] = ADCBUF[0] & 0xFF;
             
             /*data[6] = (VMD_mes >> 8) & 0xFF; // VMD_mes
             data[7] = VMD_mes & 0xFF;*/
