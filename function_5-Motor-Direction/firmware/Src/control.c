@@ -3,6 +3,7 @@
  *
  *  Created on: 12 nov. 2021
  *      Author: Carole Meyer
+ *
  */
 
 /* Includes ------------------------------------------------------------------*/
@@ -19,8 +20,10 @@
 
 /* Private define ------------------------------------------------------------*/
 
-#define MAX_SPEED_CM_S 	0.527	// speed in centimeter/s when speed set at 75 --> init = 0.527
-#define MED_SPEED_CM_S 	0.17 	// speed in centimeter/s when speed set at 60
+#define RUN_SPEED 	0.527			// speed in meter/s when speed set at RUN --> init = 0.527
+#define JOG_SPEED 	0.17 			// speed in meter/s when speed set at JOG
+#define RIGHT_ANGLE	8.306741531		// angle in degree traveled in 1 second when angle set at HARD_R
+#define LEFT_ANGLE	-8.366477998	// angle in degree traveled in 1 second when angle set a HARD_L
 
 
 #define DISABLED 	0
@@ -29,7 +32,7 @@
 #define STOP 		50
 #define REVERSE 	40
 #define WALK 		58
-#define JOG 		65
+#define JOG 		60
 #define RUN 		75
 
 //Definition des modes de direction :: STEERING MODES
@@ -53,7 +56,8 @@
 #define AZIMUT_RIGHT	2
 
 
-extern double alpha;
+extern double carLatitude;
+extern double carLongitude;
 extern int pos_OK;
 int CHANGE_TO_STOP=0;
 
@@ -142,24 +146,24 @@ void car_control(int requested_speed, int requested_steer){
 			wheels_set_speed(GPIO_PIN_RESET, GPIO_PIN_RESET, STOP, STOP);
 			break;
 		case REVERSE:
-			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (modeSpeed*(100-diff))/100, modeSpeed);}
-			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, modeSpeed, (modeSpeed*diff)/100);}
-			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, modeSpeed, modeSpeed);}
+			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (requested_speed*(100-diff))/100, requested_speed);}
+			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, requested_speed, (requested_speed*diff)/100);}
+			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, requested_speed, requested_speed);}
 			break;
 		case WALK:
-			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, modeSpeed, (modeSpeed*(100+diff))/100);}
-			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (modeSpeed*(100+diff))/100, modeSpeed);}
-			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, modeSpeed, modeSpeed);}
+			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, requested_speed, (requested_speed*(100+diff))/100);}
+			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (requested_speed*(100+diff))/100, requested_speed);}
+			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, requested_speed, requested_speed);}
 			break;
 		case JOG:
-			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (modeSpeed*(100-diff/3))/100, (modeSpeed*(100+(2*diff)/3))/100);}
-			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (modeSpeed*(100+(2*diff)/3))/100, (modeSpeed*(100-diff/3))/100);}
-			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, modeSpeed, modeSpeed);}
+			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (requested_speed*(100-diff/3))/100, (requested_speed*(100+(2*diff)/3))/100);}
+			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (requested_speed*(100+(2*diff)/3))/100, (requested_speed*(100-diff/3))/100);}
+			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, requested_speed, requested_speed);}
 			break;
 		case RUN:
-			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (modeSpeed*(100-diff))/100, modeSpeed);}
-			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, modeSpeed, (modeSpeed*(100-diff))/100);}
-			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, modeSpeed, modeSpeed);}
+			if (azimut == AZIMUT_RIGHT){wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (requested_speed*(100-diff))/100, requested_speed);}
+			else if (azimut == AZIMUT_LEFT) {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, requested_speed, (requested_speed*(100-diff))/100);}
+			else {wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, requested_speed, requested_speed);}
 			break;
 		default:
 			wheels_set_speed(GPIO_PIN_RESET, GPIO_PIN_RESET, STOP, STOP);
@@ -172,145 +176,183 @@ void car_control(int requested_speed, int requested_steer){
  * param	double distance	Distance between the two GPS location in meters
  * retval	None
  * */
-
 double go_straight_without_GPS(double distance){
-	//float start_dist = distance;
 
 	//maximum speed while distance less than 2m
 	if (distance > 2.0) {
-		wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, 70, 70);
-		distance = distance - MAX_SPEED_CM_S; // each second, the car travels 0,527m at this speed (52,7cm/s)
+		car_control(RUN, STRAIGHT);
+		distance = distance - RUN_SPEED; // each second, the car travels 0,527m at this speed (52,7cm/s)
 		HAL_Delay(1000);
 	}
 
 	//medium speed between 2m and 25cm
 	else if (distance > 0.25) {
-		wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, 60, 60);
-		distance = distance - MED_SPEED_CM_S;
+		car_control(JOG, STRAIGHT);
+		distance = distance - JOG_SPEED;
 		HAL_Delay(1000);
 	}
 
 	//stop at 25cm
 	else {
-		wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, 50, 50);
+		car_control(STOP, STRAIGHT);
 		pos_OK = 1;
 	}
 
 	return distance;
 }
 
-/* brief	Determine the angle we need to turn to join the right location
- * param	int requested_speed
- * 			int resquested_angle
- * retval	double alpha_diff	Angle between the North and the axis of the car
+/* brief	Manage the movement between the car and the destination
+ * param	double distance		Distance between the car and the destination
+ * 			double angleToGo	Angle in degrees between the car and the destination according to the North
+ * 			int first			Set if the routine begins in a new location
+ * retval 	double angleCarDiff	Angle in degrees traveled from the last car location
  * */
-double calculate_alpha(int requested_speed, int requested_steer){
-	int alpha_diff = 0;
+double direction_speed_management_without_GPS(double distance, double angleToGo, int first){
 
-	switch(requested_steer) {
-			case STRAIGHT:
-				alpha_diff = 0;
-			case HARD_L:
-				switch (requested_speed) {
-					case WALK :
-						alpha_diff = 0;
-						break;
-					case JOG :
-						alpha_diff = 0;
-						break;
-					case RUN :
-						alpha_diff = 0;
-						break;
-				}
-			case MODT_L:
-				switch (requested_speed) {
-					case WALK :
-						alpha_diff = 0;
-						break;
-					case JOG :
-						alpha_diff = 0;
-						break;
-					case RUN :
-						alpha_diff = 0;
-						break;
-				}
-			case SOFT_L:
-				switch (requested_speed) {
-					case WALK :
-						alpha_diff = 0;
-						break;
-					case JOG :
-						alpha_diff = 0;
-						break;
-					case RUN :
-						alpha_diff = 0;
-						break;
-				}
-			case HARD_R:
-				switch (requested_speed) {
-					case WALK :
-						alpha_diff = 0;
-						break;
-					case JOG :
-						alpha_diff = 0;
-						break;
-					case RUN :
-						alpha_diff = 0;
-						break;
-				}
-			case MODT_R:
-				switch (requested_speed) {
-					case WALK :
-						alpha_diff = 0;
-						break;
-					case JOG :
-						alpha_diff = 0;
-						break;
-					case RUN :
-						alpha_diff = 0;
-						break;
-				}
-			case SOFT_R:
-				switch (requested_speed) {
-					case WALK :
-						alpha_diff = 0;
-						break;
-					case JOG :
-						alpha_diff = 0;
-						break;
-					case RUN :
-						alpha_diff = 0;
-						break;
-				}
+	int angleCommand = STRAIGHT;
+	double angleCarDiff = 0;
+
+	/* When routine starts at the new location, the wheels turns and the car doesn't move */
+
+	if (first == 1) {
+
+		/* Manage the direction of the car according to the angle between the car axis and the GPS location */
+		if (angleToGo < 10 || angleToGo >= 350) angleCommand = STRAIGHT;
+
+		else if (angleToGo >= 10 && angleToGo < 180) {
+			angleCommand = HARD_R;
+			angleCarDiff = RIGHT_ANGLE;
+		}
+		else if (angleToGo >= 180 || angleToGo < 350) {
+			angleCommand = HARD_L;
+			angleCarDiff = LEFT_ANGLE;
+		}
+		/* Apply commands to different motors and stop when we are close to the destination */
+		car_control(STOP, angleCommand);
+
+	}
+	else {
+		/* Manage the direction of the car according to the angle between the car axis and the GPS location */
+		if (angleToGo < 5 && angleToGo >= -5) {angleCommand = STRAIGHT;}
+
+		else if (angleToGo >= 5) {
+			angleCommand = HARD_R;
+			angleCarDiff = RIGHT_ANGLE;
+		}
+		else if (angleToGo <= -5) {
+			angleCommand = HARD_L;
+			angleCarDiff = LEFT_ANGLE;
+		}
+
+		/* Apply commands to different motors and stop when we are close to the destination */
+		if (distance > 0.50) {
+			car_control(JOG, angleCommand);
+		}
+		else {
+			car_control(STOP, STRAIGHT);
+			pos_OK = 1;
+		}
 	}
 
-			return alpha_diff;
+	return(angleCarDiff);
+
 }
 
-/* brief	Determine the angle we need to turn to join the right location
- * param	double teta		Angle between the North and the GPS location we want to join
- * 			double alpha	Angle between the North and the axis of the car
- * retval	double beta		Angle between the axis of the car and the GPS location
+/* brief	Manage the movement of the car without GPS connected
+ * param	double carLatitudeStart, carLongitudeStart	Car coordinates at the start of the routine
+ * 			double destLatitude, destLongitude			Destination coordinates
+ * retval 	None
+ **/
+void movement_without_GPS(double carLatitudeStart, double carLongitudeStart, double destLatitude, double destLongitude) {
+
+	uint32_t startTime = 0;
+	uint32_t currentTime = 0;
+	double diffTime = 0;
+
+	double angleCar = 0, angleDiff = 0;
+	double dist = get_distance(carLatitude, carLongitude, destLatitude, destLongitude);
+	double angleDest = get_angle_dest(carLatitudeStart, carLongitudeStart, destLatitude, destLongitude);
+	double angleToGo = get_angle_to_go(angleCar, angleDest);
+
+	int first = 1;
+	int cnt = 0;
+
+	startTime = HAL_GetTick();
+
+	/* update car coordinates calculated each seconds and movement*/
+	while(pos_OK == 0) {
+
+		angleDiff = direction_speed_management_without_GPS(dist, angleToGo, first);
+
+		currentTime = HAL_GetTick();
+      	diffTime = currentTime - startTime;
+
+		if (diffTime/1000 > cnt) {
+
+			first = 0;
+
+			dist = get_distance(carLatitude, carLongitude, destLatitude, destLongitude);
+
+			angleCar = angleCar + angleDiff;
+			if(angleCar < 0) angleCar = 360+angleCar;
+
+			angleToGo = get_angle_to_go(angleCar, angleDest);
+
+			if(angleDiff < 0) angleDiff = 360+angleDiff;
+
+			carLatitude = get_new_latitude(carLatitudeStart, angleCar, JOG_SPEED*cnt);
+			carLongitude = get_new_longitude(carLatitudeStart, carLongitudeStart, carLatitude, angleCar, JOG_SPEED*cnt);
+			cnt++;
+
+		}
+	}
+
+}
+
+/* brief	Determine the angle between the North and the car
+ * param	double carLatitudePre, double carLongitudePre		Previous GPS coordinates of the car
+ * 			double carLatitude, double carLongitude				Actual GPS coordinates of the car
+ * retval	double angleCar		Angle between the North and the car
  * */
-double calculate_beta(double teta) {
-	return (teta - alpha);
+double get_angle_car(double carLatPre, double carLongPre, double carLat, double carLong){
+	return get_angle_GPS(carLatPre, carLongPre, carLat, carLong);
+}
+
+/* brief	Determine the angle between the North and the destination
+ * param	double carLatitude, double carLongitude		Actual GPS coordinates of the car
+ * 			double destLatitude, double destLongitude	Actual GPS coordinates of the destination
+ * retval	double angleDest	Angle between the North and the destination
+ * */
+double get_angle_dest(double carLat, double carLong, double destLat, double destLong){
+	return get_angle_GPS(carLat, carLong, destLat, destLong);
+}
+
+
+/* brief	Determine the angle we need to turn to join the right location
+ * param	double angleCar		Angle between the North and the car
+ * 			double angleDest	Angle between the North and the destination
+ * retval	double angleToGo	Angle between the car and the destination
+ * */
+double get_angle_to_go(double angleCar, double angleDest) {
+	double angleToGo = angleDest - angleCar;
+	return (angleToGo);
 }
 
 
 /* brief	Manage the direction of the car according to the angle between the car axis and the GPS location
- * param	double beta			Angle between the axis of the car and the GPS location in degrees
- * retval	int angle_command	Command to control the steering of the wheels
+ * param	double angleToGo	Angle between the axis of the car and the GPS location in degrees
+ * retval	int angleCommand	Command to control the steering of the wheels
  * */
-int direction_management(double beta) {
-	int angle_command = 50;
+int calculate_direction_command_with_GPS(double angleToGo) {
+	int angleCommand = STRAIGHT;
 
-	if (beta < 10 || beta >= 350) {angle_command = STRAIGHT;}
-	else if (beta >= 10 && beta < 45) {angle_command = MODT_R;}
-	else if (beta >= 45 && beta < 180) {angle_command = HARD_R;}
-	else if (beta >= 180 && beta < 315) {angle_command = HARD_L;}
-	else if (beta >= 315 && beta < 350) {angle_command = MODT_L;}
+	if (angleToGo < 10 || angleToGo >= 350) {angleCommand = STRAIGHT;}
+	else if (angleToGo >= 10 && angleToGo < 45) {angleCommand = MODT_R;}
+	else if (angleToGo >= 45 && angleToGo < 180) {angleCommand = HARD_R;}
+	else if (angleToGo >= 180 && angleToGo < 315) {angleCommand = HARD_L;}
+	else if (angleToGo >= 315 && angleToGo < 350) {angleCommand = MODT_L;}
 
-	return angle_command;
+	return angleCommand;
 }
 
 
@@ -320,50 +362,46 @@ int direction_management(double beta) {
  * 			double alpha		Angle between the axis of the car and the North
  * retval	None
  * */
-void direction_speed(double distance, double beta){
+void direction_speed_management_with_GPS(double distance, double angleToGo){
 
 	// calculate the angle command according to the angle beta
-	int angle_command = STRAIGHT;//direction_management(beta);
-
+	int angleCommand = calculate_direction_command_with_GPS(angleToGo);
 	// if beta is between 270 and 90 --> the car is in the general right direction -> we manage the speed in normal functioning
-	if ((beta <= 90 && beta >= 0) || (beta <= 360 && beta >= 270)) {
+	if ((angleToGo <= 90 && angleToGo >= 0) || (angleToGo <= 360 && angleToGo >= 270)) {
 		if (distance > 2.0) {
-			alpha = alpha + calculate_alpha(RUN, angle_command);
-			car_control(RUN, angle_command);
+			car_control(RUN, angleCommand);
 		}
 		else if (distance > 0.25) {
-			alpha = alpha + calculate_alpha(WALK, angle_command);
-			car_control(WALK, angle_command);
+			car_control(WALK, angleCommand);
 		}
 		else {
-			alpha = alpha + calculate_alpha(STOP, STRAIGHT);
 		    car_control(STOP, STRAIGHT);
 		    pos_OK = 1;
 		}
 	}
-
 	// if the car is totally in the wrong direction --> the car turns slowly
 	else {
-		alpha = alpha + calculate_alpha(WALK, angle_command);
-	    car_control(WALK, angle_command);
+	    car_control(WALK, angleCommand);
 	}
 
 }
 
-/* brief	Manage the movement from 2 GPS coordinates
- * param	double lat1, lon1, lat2, lon2	GPS decimal coordinates : latitude and longitude of each location
- * 			double alpha 					Actual angle between the North and the axis of the car
- * retval	double alpha					Update angle between the North and the axis of the car
+/* brief	Manage the movement between the car and the destination
+ * param	double carLatitude, carLongitude			Actual GPS coordinates of the car
+ * 			double carLatitudePre, carLongitudePre		Previous GPS coordinates of the car
+ * 			double destLatitude, destLongitude			Actual GPS coordinates of the destination
+ * retval 	None
  * */
-void movement_with_GPS(double lat1, double lon1, double lat2, double lon2) {
+void movement_with_GPS(double carLat, double carLong, double carLatPre, double carLongPre, double destLat, double destLong) {
 
-	double distance = get_distance(lat1, lon1, lat2, lon2);
-	double teta = get_angle_GPS(lat1, lon1, lat2, lon2);
+	double distance = get_distance(carLat, carLong, destLat, destLong);
+	double angleDest = get_angle_dest(carLat, carLong, destLat, destLong);
 
-	double beta = calculate_beta(teta);
+	double angleCar = get_angle_car(carLatPre, carLongPre, carLat, carLong);
 
-	direction_speed(distance, beta);
+	double angleToGo = get_angle_to_go(angleCar, angleDest);
 
+	direction_speed_management_with_GPS(distance, angleToGo);
 }
 
 /* brief	Make a 360 degrees turn
@@ -381,4 +419,3 @@ void turn360(void) {
 	}
 	//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (60*(100+(2*DIFF_LARGE)/3))/100, (60*(100-DIFF_LARGE/3))/100);
 }
-

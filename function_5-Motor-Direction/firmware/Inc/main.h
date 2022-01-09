@@ -47,6 +47,7 @@
 #include "wheels.h"
 #include "steering.h"
 #include "power.h"
+#include <time.h>
 
 /* USER CODE END Includes */
 

@@ -25,46 +25,70 @@ void car_control(int requested_speed, int requested_steer);
  * */
 double go_straight_without_GPS(double distance);
 
-/* brief	Determine the angle we need to turn to join the right location
- * param	int requested_speed
- * 			int resquested_angle
- * retval	None
+/* brief	Manage the movement between the car and the destination
+ * param	double distance		Distance between the car and the destination
+ * 			double angleToGo	Angle in degrees between the car and the destination according to the North
+ * 			int first			Set if the routine begins in a new location
+ * retval 	double angleCarDiff	Angle in degrees traveled from the last car location
  * */
-double calculate_alpha(int requested_speed, int requested_steer);
+double direction_speed_management_without_GPS(double distance, double angleToGo, int first);
+
+/* brief	Manage the movement of the car without GPS connected
+ * param	double carLatitudeStart, carLongitudeStart	Car coordinates at the start of the routine
+ * 			double destLatitude, destLongitude			Destination coordinates
+ * retval 	None
+ **/
+void movement_without_GPS(double carLatitudeStart, double carLongitudeStart, double destLatitude, double destLongitude);
+
+/* brief	Determine the angle between the North and the car
+ * param	double carLatitudePrec, double carLongitudePrec		Previous GPS coordinates of the car
+ * 			double carLatitude, double carLongitude				Actual GPS coordinates of the car
+ * retval	double angleCar		Angle between the North and the car
+ * */
+double get_angle_car(double carLatPre, double carLongPre, double carLat, double carLong);
+
+/* brief	Determine the angle between the North and the destination
+ * param	double carLatitude, double carLongitude		Actual GPS coordinates of the car
+ * 			double destLatitude, double destLongitude	Actual GPS coordinates of the destination
+ * retval	double angleDest	Angle between the North and the destination
+ * */
+double get_angle_dest(double carLat, double carLong, double destLat, double destLong);
 
 /* brief	Determine the angle we need to turn to join the right location
- * param	double teta		Angle between the North and the GPS location we want to join
- * 			double alpha	Angle between the North and the axis of the car
- * retval	double beta		Angle between the axis of the car and the GPS location
+ * param	double angleCar		Angle between the North and the car
+ * 			double angleDest	Angle between the North and the destination
+ * retval	double angleToGo	Angle between the car and the destination
  * */
-double calculate_beta(double teta);
-
+double get_angle_to_go(double angleCar, double angleDest);
 
 /* brief	Manage the direction of the car according to the angle between the car axis and the GPS location
- * param	double beta			Angle between the axis of the car and the GPS location in degrees
- * retval	int angle_command	Command to control the steering of the wheels
+ * param	double angleToGo	Angle between the axis of the car and the GPS location in degrees
+ * retval	int angleCommand	Command to control the steering of the wheels
  * */
-int direction_management(double beta);
-
+int calculate_direction_command_with_GPS(double angleToGo);
 
 /* brief	Control the speed and the steering of the car in real time according to the distance and the angle between the car and the location we want to join
  * param	double distance		Distance between the two GPS location in meters
  * 			double beta			Angle between the axis of the car and the GPS location in degrees
+ * 			double alpha		Angle between the axis of the car and the North
  * retval	None
  * */
-void direction_speed(double distance, double beta);
+void direction_speed_management_with_GPS(double distance, double angleToGo);
 
-
-/* brief	Manage the movement from 2 GPS coordinates
- * param	double lat1, lon1, lat2, lon2	GPS decimal coordinates : latitude and longitude of each location
- * retval	None
+/* brief	Manage the movement between the car and the destination
+ * param	double carLatitude, carLongitude			Actual GPS coordinates of the car
+ * 			double carLatitudePrec, carLongitudePrec	Previous GPS coordinates of the car
+ * 			double destLatitude, destLongitude			Actual GPS coordinates of the destination
+ * retval 	None
  * */
-void movement_with_GPS(double lat1, double lon1, double lat2, double lon2);
+void movement_with_GPS(double carLat, double carLong, double carLatPrec, double carLongPrec, double destLat, double destLong);
+
 
 /* brief	Make a 360 degrees turn
  * param	None
  * retval	None
  * */
 void turn360(void);
+
 
 #endif /* CONTROL_H_ */

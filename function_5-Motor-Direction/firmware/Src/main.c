@@ -50,6 +50,7 @@
 #include "calibrate.h"
 #include "GPS.h"
 
+
 /* USER CODE BEGIN Includes */
 
 /* Ici, définir le mode de fonctionnement du code
@@ -59,7 +60,12 @@
  * 3- Trames 0x030 (GPS)
  */
 
+<<<<<<< Updated upstream
 #define MODE 4
+=======
+#define MODE 3
+#define JOG_SPEED 0.17 	// speed in meter/s when speed set at JOG
+>>>>>>> Stashed changes
 
 /* USER CODE END Includes */
 
@@ -125,14 +131,27 @@ double lonTenDes = 0;
 // GPS coordinates of the car
 double carLatitude = 0;
 double carLongitude = 0;
-double dist = 0;
-double dist_reel = 0;
+
+// GPS previous coordinates of the car
+double carLatitudePrev = 0;
+double carLongitudePrev = 0;
+
 // GPS coordinates of the location where we want to go
 double destLatitude = 0;
 double destLongitude = 0;
 
-double alpha = 0;
+double carLatitudeStart ;
+double carLongitudeStart ;
+
+
+double destCoordinates[4];
+
 int pos_OK = 0;
+
+double dist = 0;
+
+int cnt = 0;
+
 
 extern CAN_HandleTypeDef hcan;
 
@@ -252,6 +271,7 @@ int main(void)
     /* Initialisation Steering */
     //steering_Init();
 
+
     while (1)
     {
         /* USER CODE END WHILE */
@@ -261,9 +281,11 @@ int main(void)
         if (UPDATE_CMD_FLAG){
             UPDATE_CMD_FLAG = 0;
 
+            /* calibration */
 			#if (MODE == 0)
             	calibrate();
 
+            /* control with CMC CAN frame */
 			#elif (MODE == 1)
             	wheels_set_speed(en_MARD, en_MARG, cmdRRM, cmdLRM);
                 en_POS = GPIO_PIN_SET;
@@ -277,9 +299,13 @@ int main(void)
                 }
                 steering_move_with_button();
 
+            /* control with SSC CAN frame */
 			#elif (MODE == 2)
+                modeSpeed = 50;
+                modeSteer = 50;
                 car_control(modeSpeed, modeSteer);
 
+<<<<<<< Updated upstream
 			#elif (MODE == 3)
                 if (latDegDes != 0.0) {
                 	destLatitude = dms2dd(latDegDes, latMinDes, latSecDes, latTenDes);
@@ -303,6 +329,51 @@ int main(void)
 			#else
                 //steering_set_position(GPIO_PIN_SET, 50);
                 turn360();
+=======
+            /* autonomous movement to one destination without GPS connection */
+			#elif (MODE == 3)
+            	carLatitude = 43.570817;
+            	carLongitude = 1.466314;
+            	carLatitudeStart = carLatitude;
+            	carLongitudeStart = carLongitude;
+
+            	destLatitude = 43.570800;
+            	destLongitude = 1.466350;
+
+            	movement_without_GPS(carLatitudeStart, carLongitudeStart, destLatitude, destLongitude);
+
+
+            /* autonomous movement following a path of GPS locations*/
+			#else
+                destLongitude = 42.888414;
+                destLatitude = 2.198709;
+
+                if (latDegPos != 0.0) {
+                	if (cnt > 1000) {
+                		car_coordinates_to_zero();
+                		cnt = 0;
+                		car_control(50,50);
+                	}
+
+                	carLatitude = dms2dd(latDegPos, latMinPos, latSecPos, latTenPos);
+                	carLongitude = dms2dd(lonDegPos, lonMinPos, lonSecPos, lonTenPos);
+                	dist = get_distance(carLatitude, carLongitude, destLatitude, destLongitude);
+                	cnt++;
+
+                	if (carLatitudePrev == 0) {
+                		carLatitudePrev = carLatitude;
+                		carLongitudePrev = carLongitude;
+                		movement_with_GPS(carLatitude, carLongitude, carLatitudePrev, carLongitudePrev, destLatitude, destLongitude);
+                	}
+                	else {
+                		movement_with_GPS(carLatitude, carLongitude, carLatitudePrev, carLongitudePrev, destLatitude, destLongitude);
+                		carLatitudePrev = carLatitude;
+                		carLongitudePrev = carLongitude;
+                	}
+
+                }
+
+>>>>>>> Stashed changes
 			#endif
         }
 
@@ -310,6 +381,7 @@ int main(void)
         // Envoi des mesures
         if (SEND_CAN) {
             SEND_CAN = 0;
+<<<<<<< Updated upstream
             data[0] = (ADCBUF[1] >> 8) & 0xFF; // ACK chemin reçu
             data[1] = ADCBUF[1] & 0xFF;
             
@@ -318,6 +390,16 @@ int main(void)
             
             data[4] = (ADCBUF[0] >> 8) & 0xFF; // niveau de batterie
             data[5] = ADCBUF[0] & 0xFF;
+=======
+            data[0] = (ADCBUF[1] >> 8) & 0xFF;	// "ACK chemin reçu" -> 0 si chemin pas reçu -> 1 si chemin enregistré
+            data[1] = ADCBUF[1] & 0xFF;
+            
+            data[2] = (ADCBUF[0] >> 8) & 0xFF;	// "ACK position" -> 0 si voiture encore en train de bouger -> 1 sinon
+            data[3] =  ADCBUF[0] & 0xFF;
+            
+            data[4] = (pos_OK >> 8) & 0xFF;		// pos_OK
+            data[5] = pos_OK & 0xFF;
+>>>>>>> Stashed changes
             
             /*data[6] = (VMD_mes >> 8) & 0xFF; // VMD_mes
             data[7] = VMD_mes & 0xFF;*/
@@ -327,8 +409,8 @@ int main(void)
         
     }
     /* USER CODE END 3 */
-    
 }
+
 
 /**
  * @brief System Clock Configuration

@@ -13,7 +13,7 @@
 
 /* Private define ------------------------------------------------------------*/
 #define PI 3.14159265358979
-
+#define R  6371.160 	// Earth radius in France
 
 extern double latDegPos;
 extern double latMinPos;
@@ -67,11 +67,7 @@ double deg2rad(double angle_rad) {
 
 double get_distance(double lat1, double lon1, double lat2, double lon2){
 
-  // Earth radius in France
-  double R = 6371.160;
-
   // degree to radian conversion
-
   double lat1_r = deg2rad(lat1);
   double lon1_r = deg2rad(lon1);
   double lon2_r = deg2rad(lon2);
@@ -110,6 +106,57 @@ double get_angle_GPS(double lat1, double lon1, double lat2, double lon2) {
 	angle_deg = fmod((angle_deg + 360.0), 360.0);
 
     return angle_deg;
+}
+
+/* brief	Determine the new latitude of the car according to the distance and the angle traveled from the previous car location
+ * param	double latPrev	Previous latitude of the car
+ * 			double angle	Angle in degrees traveled from the previous car position compared to the North
+ * 			double dist		Distance in meters traveled from the previous car position compared to the North
+ * retval	double lat 		New latitude of the car
+ * */
+double get_new_latitude(double latPrev, double angle, double dist) {
+
+	  double delta = dist/(R*1000);
+
+	  //conversion in radian
+	  double latPrev_r = deg2rad(latPrev);
+	  double angle_r = deg2rad(angle);
+
+	  // calculate the new latitude in radian
+	  double latNew_r = asinf( sinf(latPrev_r) * cosf(delta) + cosf(latPrev_r) * sinf(delta) * cosf(angle_r));
+
+	  //conversion in deg + conversion to have absolute angle compared to the North
+	  double latNew = (360 * latNew_r) / (2*PI);
+	  latNew = fmod((latNew + 360.0), 360.0);
+
+	  return(latNew);
+}
+
+/* brief	Determine the new longitude of the car according to the distance and the angle traveled from the previous car location
+ * param	double latPrev, longPrev	Previous coordinates of the car
+ * 			double latNew				New latitude of the car
+ * 			double angle	Angle in degrees traveled from the previous car position compared to the North
+ * 			double dist		Distance in meters traveled from the previous car position compared to the North
+ * retval	double lon		New longitude of the car
+ * */
+double get_new_longitude(double latPrev, double longPrev, double latNew, double angle, double dist) {
+
+	  double delta = dist/(R*1000);
+
+	  //conversion in radian
+	  double latPrev_r = deg2rad(latPrev);
+	  double longPrev_r = deg2rad(longPrev);
+	  double latNew_r = deg2rad(latNew);
+	  double angle_r = deg2rad(angle);
+
+	  // calculate the new latitude in radian
+	  double longNew_r = longPrev_r + atan2f( sinf(angle_r) * sinf(delta) * cosf(latPrev_r) , cosf(delta) - sinf(latPrev_r)*sinf(latNew_r));
+
+	  //conversion in deg + conversion to have absolute angle compared to the North
+	  double longNew = ( 360 * longNew_r) / (2*PI);
+	  longNew = fmod((longNew + 360.0), 360.0);
+
+	  return(longNew);
 }
 
 /* brief	Set to 0 car coordinates

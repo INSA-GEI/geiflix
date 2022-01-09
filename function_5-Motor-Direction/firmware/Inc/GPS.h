@@ -36,6 +36,24 @@ double get_distance(double lat1, double lon1, double lat2, double lon2);
  * */
 double get_angle_GPS(double lat1, double lon1, double lat2, double lon2);
 
+
+/* brief	Determine the new latitude of the car according to the distance and the angle traveled from the previous car location
+ * param	double latPrev	Previous latitude of the car
+ * 			double angle	Angle in degrees traveled from the previous car position compared to the North
+ * 			double dist		Distance in meters traveled from the previous car position compared to the North
+ * retval	double lat 		New latitude of the car
+ * */
+double get_new_latitude(double latPrev, double angle, double dist);
+
+/* brief	Determine the new longitude of the car according to the distance and the angle traveled from the previous car location
+ * param	double latPrev, longPrev	Previous coordinates of the car
+ * 			double latNew				New latitude of the car
+ * 			double angle	Angle in degrees traveled from the previous car position compared to the North
+ * 			double dist		Distance in meters traveled from the previous car position compared to the North
+ * retval	double lon		New longitude of the car
+ * */
+double get_new_longitude(double latPrev, double longPrev, double latNew, double angle, double dist);
+
 /* brief	Set to 0 car coordinates
  * param	None
  * retval	None
