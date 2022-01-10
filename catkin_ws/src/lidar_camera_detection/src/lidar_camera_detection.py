@@ -1,128 +1,101 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 import rospy
-import jetson.inference
 from vision_msgs.msg import Detection2DArray
-import jetson.utils
-import RPi.GPIO as GPIO
 import time
-import threading
-from threading import Lock
 import os
 from sensor_msgs import point_cloud2 as pc2
-from sensor_msgs.msg import PointCloud2, PointField
+from sensor_msgs.msg import Image, PointCloud2, PointField
 import numpy as np
 import math
 from std_msgs.msg import Header
+import ros_numpy
+import cv2
+import message_filters
+from cv_bridge import CvBridge, CvBridgeError
 
+font                   = cv2.FONT_HERSHEY_SIMPLEX
+bottomLeftCornerOfText = (10,500)
+fontScale              = 1
+fontColor              = (255,255,255)
+thickness              = 1
+lineType               = 2
+
+pointCloudtest = None
+
+CV_BRIDGE = CvBridge()
 class Detection:
     def __init__(self):
         self.pointCloud = None
 
     def lidar_pc_callback(self, data):
+        global pointCloudtest
         points = ros_numpy.point_cloud2.pointcloud2_to_array(data)
-        self.pointCloud = np.asarray(points.tolist())
+        pointCloudtest = np.asarray(points.tolist())
 
-    def camera_detection_callback(self, data)
-        if self.pointCloud is not None:
+    def camera_detection_callback(self, camera_image, data, image_pub):
+        global pointCloudtest
+
+
+
+        try:
+            img = CV_BRIDGE.imgmsg_to_cv2(camera_image, 'bgr8')
+        except CvBridgeError as e:
+            rospy.logerr(e)
+            return
+        #points = ros_numpy.point_cloud2.pointcloud2_to_array(data_lidar)
+        #points = np.asarray(points.tolist())
+
+        if pointCloudtest  is not None:
+            print("ici")
             #Pour chaque objet, on cherche leur distance
             for detection in data.detections:
                 center_x = detection.bbox.center.x
                 center_y = detection.bbox.center.y
                 closest_point = None
-                for point in self.pointCLoud:
-                    if abs(center_x - point[0]) < 1 and abs(center_y - point[0]) <1:
+                for point in pointCloudtest:
+                    if abs(center_x - point[0]) < 300 and abs(center_y - point[0]) <300:
                         if closest_point is None or point[2] < closest_point:
                             closest_point = point[2]
-                print(closest_point)
-                #Ajouter cette distance au msg
-                #Envoyer tous les msgs
-        
+
+                cv2.putText(img,str(closest_point), (int(center_x),int(center_y)), font,
+                            fontScale,
+                            fontColor,
+                            thickness)
 
 
 
-beep_on = False
-counter_person = 0
-watchdog_counter = 0
-mutex = Lock()
 
-def chien_de_garde():
-    global watchdog_counter
-    global counter_person
-    global beep_on
-    while(True):
-        time.sleep(0.5)
-        print(watchdog_counter)
-        mutex.acquire()
-        if (watchdog_counter == 0):
-            beep_on = False
-            counter_person = 0
-        else :
-            watchdog_counter = 0
-        mutex.release()
-           
+            # Publish the projected points image
+            try:
+                image_pub.publish(CV_BRIDGE.cv2_to_imgmsg(img, "bgr8"))
+            except CvBridgeError as e: 
+                rospy.logerr(e)
 
 
-#Send PWM to the buzzer
-def beep(pwm):
-    global beep_on
-    etat_beep = False
-    while (True):
-        if ((beep_on != etat_beep) and beep_on):
-            pwm.start(50)
-            etat_beep = True
-        elif (beep_on != etat_beep and (not beep_on)):
-            pwm.stop()
-            etat_beep = False
-    beep_on = False
-
-
-
-def callback(data):
-    global beep_on
-    global counter_person
-    global watchdog_counter
-    mutex.acquire()
-    watchdog_counter = 1
-    person_detected = False
-    for detection in data.detections:
-        if (detection.results[0].id == 1):
-            counter_person += 1
-            person_detected = True
-    print(counter_person)        
-    if (not person_detected):
-        counter_person = 0
-    if (counter_person > 2):
-        beep_on = True
-        counter_person = 3
-    else:
-        beep_on = False
-    mutex.release()
     
 def main():
 
-    # Pin Setup:
-    # Board pin-numbering scheme
-    GPIO.cleanup()
-    GPIO.setmode(GPIO.BOARD)
-    # set pin as an output pin with optional initial state of HIGH
-    GPIO.setup(33, GPIO.OUT)
-    pwm = GPIO.PWM(33, 2300)
+    rospy.init_node('lidar_camera_detection', anonymous=False)
+    image_detection = '/detectnet/overlay'
+    data_detection = '/detectnet/detections'
 
-    x = threading.Thread(target=beep, args=(pwm,), daemon=True)
-    x.start()
+    detection = Detection()
+    img_detection_sub = message_filters.Subscriber(image_detection, Image)
+    data_detection_sub = message_filters.Subscriber(data_detection, Detection2DArray)
+    #lidar_sub = message_filters.Subscriber('/coordinates_lidar_2d', PointCloud2)
 
-    thread_chien = threading.Thread(target=chien_de_garde, args=(), daemon=True)
-    thread_chien.start()
 
-    # In ROS, nodes are uniquely named. If two nodes with the same
-    # name are launched, the previous one is kicked off. The
-    # anonymous=True flag means that rospy will choose a unique
-    # name for our 'listener' node so that multiple listeners can
-    # run simultaneously.
-    rospy.init_node('listener', anonymous=True)
+    image_pub = rospy.Publisher("/usb_cam/cam_with_dist", Image, queue_size=5)
 
-    rospy.Subscriber("/detectnet/detections", Detection2DArray, callback)
+    ats =  message_filters.ApproximateTimeSynchronizer(
+            [img_detection_sub,data_detection_sub], queue_size=1, slop = 0.1)
+
+    ats.registerCallback(detection.camera_detection_callback, image_pub)
+
+
+
+    rospy.Subscriber("/coordinates_lidar_2d", PointCloud2, detection.lidar_pc_callback)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()

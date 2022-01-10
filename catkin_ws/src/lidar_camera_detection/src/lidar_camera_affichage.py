@@ -28,6 +28,8 @@ def affichage_lidar_camera(lidar_pointsCloud2D, camera_image, image_pub):
         rospy.logerr(e)
         return
 
+    print("ici")
+
 
     points2D = ros_numpy.point_cloud2.pointcloud2_to_array(lidar_pointsCloud2D)
     points2D = np.asarray(points2D.tolist())

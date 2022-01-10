@@ -55,16 +55,5 @@
         name="calibrate_camera_lidar"
         output="screen" />
 
-    <!-- Run image view to display the projected points image -->
-    <node 
-        name="camera_lidar_projection" 
-        pkg="image_view"
-        type="image_view"
-        respawn="false"
-        output="screen">
-        
-        <!-- Remap input topics -->
-        <remap from="image" to="$(arg camera)/camera_lidar" />
-    </node>
 
 </launch>

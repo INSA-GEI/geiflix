@@ -50,6 +50,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
 
   ui.button_list->setEnabled(false);
   ui.button_image->setEnabled(false) ;
+  ui.button_cam_with_pts->setEnabled(false);
 
   /*********************
   ** Auto Start
@@ -85,8 +86,10 @@ void MainWindow::on_button_connect_clicked(bool check) {
       ui.button_connect->setEnabled(false);
       ui.button_list->setEnabled(true);
       ui.button_image->setEnabled(true);
+      ui.button_cam_with_pts->setEnabled(true);
       imageNode = new ImageNode("/usb_cam/image_raw");
       camLidarNode = new ImageNode("/usb_cam/camera_lidar");
+      camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
     }
   } else {
     if (!qnode.init(ui.line_edit_master->text().toStdString(),
@@ -96,11 +99,13 @@ void MainWindow::on_button_connect_clicked(bool check) {
       ui.button_connect->setEnabled(false);
       ui.button_list->setEnabled(true);
       ui.button_image->setEnabled(true);
+      ui.button_cam_with_pts->setEnabled(true);
       ui.line_edit_master->setReadOnly(true);
       ui.line_edit_host->setReadOnly(true);
       ui.line_edit_topic->setReadOnly(true);
       imageNode = new ImageNode("/usb_cam/image_raw");
       camLidarNode = new ImageNode("/usb_cam/camera_lidar");
+      camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
     }
   }
 }
@@ -220,8 +225,26 @@ void MainWindow::on_button_cam_with_pts_clicked(bool checked)
 
 }
 
+void MainWindow::on_button_cam_with_IA_clicked(bool checked)
+{
+  QString button_text = ui.button_cam_with_IA->text();
+  if (button_text.compare("Voir camera + IA + distance") == 0)
+  {
+    ui.button_cam_with_IA->setText("Fermer camera + IA + distance");
+    camLidarIANode->showCamera();
+  }
+  else
+  {
+    camLidarIANode->hideCamera();
+    ui.button_cam_with_IA->setText("Voir camera + IA + distance");
+  }
+
+}
+
 
 }  // namespace boule_de_cristal
+
+
 
 
 
