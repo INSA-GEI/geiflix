@@ -1,17 +1,10 @@
-#!/usr/bin/env python3
 import asyncio
 from asyncio import sleep
 
 import numpy as np
 import cv2
 from cv2 import aruco
-
-#################################################
-import rospy
-from rplidar_ros.msg import QRCode_Detect_msgs
-
-pub = rospy.Publisher("/CAM_Data", QRCode_Detect_msgs,queue_size=10)
-
+from identifyID import identify,identify2
 # liste des IDs
 products = [10,20,25,30]
 #global nb_aruco
@@ -50,13 +43,18 @@ def capture(choice):
     [0.00000000e+00,0.00000000e+00,1.00000000e+00]] )
     distortion_coeff = np.array( [1.69926613e-01,-7.40003491e-01,-7.45655262e-03,-1.79442353e-03, 2.46650225e+00] )
 
-    rospy.init_node('CAM_data')
-    rate = rospy.Rate(10) # 10hz
     while True:
         ret, img = cap.read()
+        height, width = img.shape[:2]
+
+
+
         parameters = aruco.DetectorParameters_create()  # Marker detection parameters
         corners, ids, rejectedImgPoints = aruco.detectMarkers(img, dictionary,parameters=parameters)
         aruco.drawDetectedMarkers(img, corners, ids, (0,255,255))
+        # trait vertical
+        for i in range(height):
+            img[i][int(width / 2)] = [255, 0, 0]
         #print(corners)
         # number of aruco markers detected
         nb_aruco= len(corners)
@@ -75,8 +73,7 @@ def capture(choice):
             #y = (corners[0][0][0][1] + corners[0][0][1][1] + corners[0][0][2][1] + corners[0][0][3][1]) / 4
             #cv2.circle(img, (int(x), int(y)), 50, (255, 0, 0), 4)
 
-        Detection=False
-        XYCentre = np.empty(2, int)
+
         if len(corners) > 0:
             #Traiter par marqueur
             for i, corner in enumerate(corners):
@@ -102,6 +99,7 @@ def capture(choice):
                 #Visualisation
                 draw_pole_length = marker_length/2 #Longueur réelle[m]
                 aruco.drawAxis(img, camera_matrix, distortion_coeff, rvec, tvec, draw_pole_length)
+
             if nb_aruco==2:
                 num_id1= ids[0]
                 num_id2= ids[1]
@@ -136,8 +134,53 @@ def capture(choice):
                                 cv2.LINE_4)
                     cv2.circle(img, (int(np.abs(x + x2) / 2), int(np.abs(y + y2) / 2)), 5, (255, 0, 0), 4)
                     cv2.rectangle(img,(int(x),int(y)),(int(x2),int(y2)),(255,0,0),4)
-                    XYCentre = [int(np.abs(x+x2)/2), int(np.abs(y+y2)/2)]
-                    Detection=True
+                    A= int(np.abs(x + x2) / 2)
+                    B= int(np.abs(y + y2)/ 2)
+                    C=int(width / 2)
+                    D= C-20
+                    E= C+20
+                    if A in range(D,E):
+                        cv2.putText(img,
+                                    f'car in the center',
+                                    (50, 300),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
+                    elif (A<D):
+                        dist= D-A
+                        erreur= (dist*100)/ (int(x-x2))
+                        cv2.putText(img,
+                                    f'car too far to the left, turn right by a distance: {dist}',
+                                    (50, 300),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
+                        cv2.putText(img,
+                                    f' therefore an error of : {erreur}',
+                                    (50, 350),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
+                    elif (A>E):
+                        dist2 = A - E
+                        erreur2 = (dist2*100) / (int(x-x2))
+                        cv2.putText(img,
+                                    f'car too far to the right, turn left by a distance: {dist2}',
+                                    (50, 300),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
+                        cv2.putText(img,
+                                    f' therefore an error of  : {erreur2}',
+                                    (50, 350),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
                 # gate detected but not the right one
                 elif num_id1==num_id2 and num_id1!=choice:
                     cv2.putText(img,
@@ -154,7 +197,6 @@ def capture(choice):
                                 (0,0 , 255),
                                 2,
                                 cv2.LINE_4)
-                    Detection=False
                 # it's not a gate
                 else:
                     cv2.putText(img,
@@ -164,7 +206,71 @@ def capture(choice):
                                 (0, 0, 255),
                                 2,
                                 cv2.LINE_4)
-                    Detection=False		
+
+            elif nb_aruco>2:
+                goodPair=identify2(ids,choice)
+                if goodPair.num1 != 99 and goodPair.num2 != 99:
+                    index1=goodPair.num1
+                    index2=goodPair.num2
+                    x = (corners[index1][0][0][0] + corners[index1][0][1][0] + corners[index1][0][2][0] + corners[index1][0][3][0]) / 4
+                    y = (corners[index1][0][0][1] + corners[index1][0][1][1] + corners[index1][0][2][1] + corners[index1][0][3][1]) / 4
+                    x2 = (corners[index2][0][0][0] + corners[index2][0][1][0] + corners[index2][0][2][0] + corners[index2][0][3][0]) / 4
+                    y2 = (corners[index2][0][0][1] + corners[index2][0][1][1] + corners[index2][0][2][1] + corners[index2][0][3][1]) / 4
+
+                    cv2.putText(img,
+                                'Aruco codes identical -> GOOD GATE DETECTED',
+                                (50, 100),
+                                font, 0.5,
+                                (0, 255, 0),
+                                2,
+                                cv2.LINE_4)
+                    cv2.putText(img,
+                                f'ID : {goodPair.pairID}',
+                                (50, 150),
+                                font, 0.5,
+                                (0, 255, 0),
+                                2,
+                                cv2.LINE_4)
+                    cv2.putText(img, f"Center coordinates : ({int(np.abs(x + x2) / 2)}, {int(np.abs(y + y2) / 2)})",
+                                (50, 200),
+                                font, 0.5,
+                                (0, 255, 0),
+                                2,
+                                cv2.LINE_4)
+
+                    cv2.circle(img, (int(np.abs(x + x2) / 2), int(np.abs(y + y2) / 2)), 5, (255, 0, 0), 4)
+                    cv2.rectangle(img, (int(x), int(y)), (int(x2), int(y2)), (255, 0, 0), 4)
+                    A = int(np.abs(x + x2) / 2)
+                    B = int(np.abs(y + y2) / 2)
+                    C = int(width / 2)
+                    D = C - 20
+                    E = C + 20
+
+                    if A in range(D, E):
+                        cv2.putText(img,
+                                    f'car in the center',
+                                    (50, 300),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
+                    elif (A < D):
+                        dist = D - A
+                        cv2.putText(img,
+                                    f'car too far to the left, turn right by a distance: {dist}',
+                                    (50, 300),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
+                    elif (A > E):
+                        cv2.putText(img,
+                                    f'voiture trop a droite, tournez gauche',
+                                    (50, 300),
+                                    font, 0.5,
+                                    (0, 0, 255),
+                                    2,
+                                    cv2.LINE_4)
 
 
         cv2.imshow('drawDetectedMarkers', img)
@@ -173,20 +279,7 @@ def capture(choice):
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
 
-        Zone=1
-        if Detection == False:
-            XYCentre=[0,0]
-        msg = QRCode_Detect_msgs()
-        msg.Zone = Zone
-        msg.Detection = Detection
-        msg.XYCentre = XYCentre
-        pub.publish(msg)
-        #rospy.loginfo('Zone: {}, Detection: {}, XYCentre : {} '.format(Zone, Detection,XYCentre))
-
     cv2.destroyAllWindows()
-
-
-
 
 
 if __name__ == '__main__':
@@ -195,4 +288,3 @@ if __name__ == '__main__':
     #choice=20
     #asyncio.run(main())
     capture(choice)
-
