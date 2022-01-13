@@ -2,20 +2,19 @@
 
 import rospy
 from pc_manip_tracking.msg import objects2m, XYobjects
-from std_msgs import String
+from std_msgs.msg import String
 import numpy as np
 
 pub = rospy.Publisher("Motor_commands", String, queue_size=10)
 
-global etape = 0
-global gate_detected = False
+etape = 2
+gate_detected = False
 
-global c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45 = False
-
-
+#c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45 = False
 
 def callback2(data):
     global etape, gate_detected, c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45
+
 
     obj0 = data.Detect2m_obj0
     obj1 = data.Detect2m_obj1
@@ -135,7 +134,7 @@ def callback3(data):
             Pole1 = data.Yobject4
             Pole2 = data.Yobject5
             
-    if Pole1 <= -0.5 and Pole2 <= -0.5 :
+    if Pole1 >= 0.5 and Pole2 >= 0.5 :
     
         pub.publish("Arret")
         
@@ -143,11 +142,13 @@ def callback3(data):
     
         pub.publish("Avancer")
 
+    rospy.loginfo('Pole1Y: {}, Pole2Y: {}, gate_detected : {} '.format(Pole1, Pole2, gate_detected))
+
 
 def main():
 
     rospy.init_node('Motor_commands')
-    rospy.Subscriber("objects2m", objects2m, callback2)
+    rospy.Subscriber("Objects2m", objects2m, callback2)
     rospy.Subscriber("XYobjects", XYobjects, callback3)
         
     rospy.spin()
