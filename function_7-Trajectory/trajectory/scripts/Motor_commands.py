@@ -62,78 +62,78 @@ def callback3(data):
     
         if c01 :
             
-            Pole1 = data.Xobject0
-            Pole2 = data.Xobject1  
+            Pole1 = data.Yobject0
+            Pole2 = data.Yobject1  
         
         elif c02 :
         
-            Pole1 = data.Xobject0
-            Pole2 = data.Xobject2 
+            Pole1 = data.Yobject0
+            Pole2 = data.Yobject2 
         
         elif c03 :
         
-            Pole1 = data.Xobject0
-            Pole2 = data.Xobject3 
+            Pole1 = data.Yobject0
+            Pole2 = data.Yobject3 
         
         elif c04 :
         
-            Pole1 = data.Xobject0
-            Pole2 = data.Xobject4
+            Pole1 = data.Yobject0
+            Pole2 = data.Yobject4
         
         elif c05 :
         
-            Pole1 = data.Xobject0
-            Pole2 = data.Xobject5
+            Pole1 = data.Yobject0
+            Pole2 = data.Yobject5
         
         elif c12 :
         
-            Pole1 = data.Xobject1
-            Pole2 = data.Xobject2
+            Pole1 = data.Yobject1
+            Pole2 = data.Yobject2
         
         elif c13 :
         
-            Pole1 = data.Xobject1
-            Pole2 = data.Xobject3
+            Pole1 = data.Yobject1
+            Pole2 = data.Yobject3
         
         elif c14 :
         
-            Pole1 = data.Xobject1
-            Pole2 = data.Xobject4
+            Pole1 = data.Yobject1
+            Pole2 = data.Yobject4
         
         elif c15 :
         
-            Pole1 = data.Xobject1
-            Pole2 = data.Xobject5
+            Pole1 = data.Yobject1
+            Pole2 = data.Yobject5
         
         elif c23 :
         
-            Pole1 = data.Xobject2
-            Pole2 = data.Xobject3
+            Pole1 = data.Yobject2
+            Pole2 = data.Yobject3
         
         elif c24 :
         
-            Pole1 = data.Xobject2
-            Pole2 = data.Xobject4
+            Pole1 = data.Yobject2
+            Pole2 = data.Yobject4
         
         elif c25 :
         
-            Pole1 = data.Xobject2
-            Pole2 = data.Xobject5
+            Pole1 = data.Yobject2
+            Pole2 = data.Yobject5
         
         elif c34 : 
         
-            Pole1 = data.Xobject3
-            Pole2 = data.Xobject4
+            Pole1 = data.Yobject3
+            Pole2 = data.Yobject4
         
         elif c35 : 
         
-            Pole1 = data.Xobject3
-            Pole2 = data.Xobject5
+            Pole1 = data.Yobject3
+            Pole2 = data.Yobject5
         
         elif c45 :
         
-            Pole1 = data.Xobject4
-            Pole2 = data.Xobject5
+            Pole1 = data.Yobject4
+            Pole2 = data.Yobject5
             
     if Pole1 <= -0.5 and Pole2 <= -0.5 :
     
