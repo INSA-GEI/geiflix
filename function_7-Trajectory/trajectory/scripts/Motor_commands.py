@@ -8,10 +8,14 @@ import numpy as np
 pub = rospy.Publisher("Motor_commands", String, queue_size=10)
 
 global etape = 0
-global gate_detecte = False
+global gate_detected = False
+
+global c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45 = False
+
+
 
 def callback2(data):
-    global etape, gate_detecte
+    global etape, gate_detected, c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45
 
     obj0 = data.Detect2m_obj0
     obj1 = data.Detect2m_obj1
@@ -20,26 +24,124 @@ def callback2(data):
     obj4 = data.Detect2m_obj4
     obj5 = data.Detect2m_obj5
     
+    c01 = obj0 and obj1
+    c02 = obj0 and obj2
+    c03 = obj0 and obj3
+    c04 = obj0 and obj4
+    c05 = obj0 and obj5
+    c12 = obj1 and obj2
+    c13 = obj1 and obj3
+    c14 = obj1 and obj4
+    c15 = obj1 and obj5
+    c23 = obj2 and obj3
+    c24 = obj2 and obj4
+    c25 = obj2 and obj5
+    c34 = obj3 and obj4
+    c35 = obj3 and obj5
+    c45 = obj4 and obj5
+    
     if etape == 2 :
 
-        if (obj0 and obj1) or (obj0 and obj2) or (obj0 and obj3) or (obj0 and obj4) or (obj0 and obj5)
-        or (obj1 and obj2) or (obj1 and obj3) or (obj1 and obj4) or (obj1 and obj5)
-        or (obj2 and obj3) or (obj2 and obj4) or (obj2 and obj5)
-        or (obj3 and obj4) or (obj3 and obj5)
-        or (obj4 and obj5) :
+        if c01 or c02 or c03 or c04 or c05 or c12 or c13 or c14 or c15 or c23 or c24 or c25 or c34 or c35 or c45 :
 
-                gate_detecte = True
+                gate_detected = True
+                
+        else :
+   
+                gate_detected = False
         
     
 
 def callback3(data):
-    global etape, gate_detecte
-
-    if etape == 2 and gate_detecte :
-
-        
-
+    global etape, gate_detected, c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45
     
+    Pole1 = 0.0
+    Pole2 = 0.0
+
+    if gate_detected :
+    
+        if c01 :
+            
+            Pole1 = data.Xobject0
+            Pole2 = data.Xobject1  
+        
+        elif c02 :
+        
+            Pole1 = data.Xobject0
+            Pole2 = data.Xobject2 
+        
+        elif c03 :
+        
+            Pole1 = data.Xobject0
+            Pole2 = data.Xobject3 
+        
+        elif c04 :
+        
+            Pole1 = data.Xobject0
+            Pole2 = data.Xobject4
+        
+        elif c05 :
+        
+            Pole1 = data.Xobject0
+            Pole2 = data.Xobject5
+        
+        elif c12 :
+        
+            Pole1 = data.Xobject1
+            Pole2 = data.Xobject2
+        
+        elif c13 :
+        
+            Pole1 = data.Xobject1
+            Pole2 = data.Xobject3
+        
+        elif c14 :
+        
+            Pole1 = data.Xobject1
+            Pole2 = data.Xobject4
+        
+        elif c15 :
+        
+            Pole1 = data.Xobject1
+            Pole2 = data.Xobject5
+        
+        elif c23 :
+        
+            Pole1 = data.Xobject2
+            Pole2 = data.Xobject3
+        
+        elif c24 :
+        
+            Pole1 = data.Xobject2
+            Pole2 = data.Xobject4
+        
+        elif c25 :
+        
+            Pole1 = data.Xobject2
+            Pole2 = data.Xobject5
+        
+        elif c34 : 
+        
+            Pole1 = data.Xobject3
+            Pole2 = data.Xobject4
+        
+        elif c35 : 
+        
+            Pole1 = data.Xobject3
+            Pole2 = data.Xobject5
+        
+        elif c45 :
+        
+            Pole1 = data.Xobject4
+            Pole2 = data.Xobject5
+            
+    if Pole1 <= -0.5 and Pole2 <= -0.5 :
+    
+        pub.publish("Arret")
+        
+    else :
+    
+        pub.publish("Avancer")
 
 
 def main():
