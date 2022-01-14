@@ -59,6 +59,7 @@ extern CAN_HandleTypeDef hcan;
 #define CAN_ID_SSC 	0x020	// Speed and Steering Command
 #define CAN_ID_POS	0x030	// Car GPS coordinates
 #define CAN_ID_DES	0x031	// Destination GPS coordinates
+#define CAN_ID_FIR 	0x040	// Fire detection
 
 /* USER CODE END Private defines */
 

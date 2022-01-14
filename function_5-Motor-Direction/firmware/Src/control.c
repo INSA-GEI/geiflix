@@ -2,7 +2,7 @@
  * control.c
  *
  *  Created on: 12 nov. 2021
- *      Author: Carole Meyer
+ *      Author: Carole Meyer, Amélie MAIER, Ruiqi HU
  *
  */
 
@@ -55,10 +55,12 @@
 #define AZIMUT_LEFT		1
 #define AZIMUT_RIGHT	2
 
-
+extern double dist;
 extern double carLatitude;
 extern double carLongitude;
+extern double angleCar;
 extern int pos_OK;
+extern int isFire;
 int CHANGE_TO_STOP=0;
 
 /* Private variables ---------------------------------------------------------*/
@@ -233,15 +235,28 @@ double direction_speed_management_without_GPS(double distance, double angleToGo,
 	}
 	else {
 		/* Manage the direction of the car according to the angle between the car axis and the GPS location */
-		if (angleToGo < 5 && angleToGo >= -5) {angleCommand = STRAIGHT;}
-
-		else if (angleToGo >= 5) {
-			angleCommand = HARD_R;
-			angleCarDiff = RIGHT_ANGLE;
+		if (angleToGo >= 0.0) {
+			if (angleToGo < 5.5 || angleToGo >= 354.5) {angleCommand = STRAIGHT;}
+			else if (angleToGo < 180) {
+				angleCommand = HARD_R;
+				angleCarDiff = RIGHT_ANGLE;
+			}
+			else if (angleToGo >= 180) {
+				angleCommand = HARD_L;
+				angleCarDiff = LEFT_ANGLE;
+			}
 		}
-		else if (angleToGo <= -5) {
-			angleCommand = HARD_L;
-			angleCarDiff = LEFT_ANGLE;
+
+		else {
+			if (angleToGo > (-5.5) || angleToGo <= (-354.5)) {angleCommand = STRAIGHT;}
+			else if (angleToGo < (-180)) {
+				angleCommand = HARD_R;
+				angleCarDiff = RIGHT_ANGLE;
+			}
+			else if (angleToGo >= (-180)) {
+				angleCommand = HARD_L;
+				angleCarDiff = LEFT_ANGLE;
+			}
 		}
 
 		/* Apply commands to different motors and stop when we are close to the destination */
@@ -269,8 +284,8 @@ void movement_without_GPS(double carLatitudeStart, double carLongitudeStart, dou
 	uint32_t currentTime = 0;
 	double diffTime = 0;
 
-	double angleCar = 0, angleDiff = 0;
-	double dist = get_distance(carLatitude, carLongitude, destLatitude, destLongitude);
+	double angleDiff = 0;
+	dist = get_distance(carLatitude, carLongitude, destLatitude, destLongitude);
 	double angleDest = get_angle_dest(carLatitudeStart, carLongitudeStart, destLatitude, destLongitude);
 	double angleToGo = get_angle_to_go(angleCar, angleDest);
 
@@ -409,13 +424,41 @@ void movement_with_GPS(double carLat, double carLong, double carLatPre, double c
  * retval	None
  * */
 void turn360(void) {
-	if (!CHANGE_TO_STOP){
-		steering_set_position(GPIO_PIN_SET, HARD_R);
-		wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, RUN);
+
+	uint32_t startTime = 0;
+	uint32_t currentTime = 0;
+	double diffTime = 0;
+
+	int cnt=0;
+
+	startTime = HAL_GetTick();
+
+	while (!CHANGE_TO_STOP && !isFire) {
+		currentTime = HAL_GetTick();
+		diffTime = currentTime - startTime;
+
+		if (diffTime/1000 > cnt) {
+			//steering_set_position(GPIO_PIN_SET, HARD_R);
+			//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, RUN);
+			car_control(JOG, HARD_R);
+			if(angleCar > 360) angleCar = angleCar-360;
+			angleCar = angleCar + RIGHT_ANGLE;
+			cnt++;
+		}
 	}
-	else{
-		wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, STOP);
-		steering_set_position(GPIO_PIN_SET, STRAIGHT);
-	}
+
+		//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, STOP);
+		//steering_set_position(GPIO_PIN_SET, STRAIGHT);
+		car_control(STOP, STRAIGHT);
+
 	//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (60*(100+(2*DIFF_LARGE)/3))/100, (60*(100-DIFF_LARGE/3))/100);
+
+}
+
+/* brief	If a fire is detected, wait until
+ * param	None
+ * retval	None
+ * */
+void waiting_while_not_fire(void) {
+	while(isFire == 0);
 }

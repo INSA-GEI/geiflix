@@ -2,7 +2,7 @@
  * control.h
  *
  *  Created on: 12 nov. 2021
- *      Author: Carole Meyer
+ *      Author: Carole Meyer, Amélie MAIER, Ruiqi HU
  */
 
 #ifndef CONTROL_H_
@@ -90,5 +90,10 @@ void movement_with_GPS(double carLat, double carLong, double carLatPrec, double 
  * */
 void turn360(void);
 
+/* brief	If a fire is detected, wait until
+ * param	None
+ * retval	None
+ * */
+void waiting_while_not_fire(void);
 
 #endif /* CONTROL_H_ */
