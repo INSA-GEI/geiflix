@@ -6,6 +6,8 @@ import base64
 import json
 import time
 from IPython.core.display import display, HTML
+from multiprocessing import Process, Pipe
+from test1 import f
 
 alist0=[43.57076, 1.46604] #Actual coordiantes of GEI at INSA.
 
@@ -20,7 +22,7 @@ def folium_deepnote_show(m):
 def home():
     aliste=[]
     with open("fire_coord.txt", "r") as data_file: #Opening of the file containing coordinates of the fire detected
-        while 1:
+        while 1: 
            where = data_file.tell() #Get the current position of the cursor
            line = data_file.readline() #Read the current line (next line)
            where = data_file.tell()
@@ -35,12 +37,12 @@ def home():
                         location = aliste,
                         zoom_start = 12
                    )                    #Create the base of the map
-                   Filename ='images/fire.jpeg'
+                   Filename ='images/Feu.png'
                    encoded = base64.b64encode(open(Filename, 'rb').read())
                    html='<img src="data:image/jpeg;base64,{}">'.format
                    resolution, width, height = 75, 50, 5
                    iframe = IFrame(html(encoded.decode('UTF-8')), width=(width*resolution) + 20, height=(height*resolution) + 20)
-                   popup = folium.Popup(iframe, max_width= 500)
+                   popup = folium.Popup(iframe, max_width= 50)
                    
                    #The previous lines allow the possibility to put an image as a popup.
 
