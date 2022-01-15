@@ -36,15 +36,15 @@ In this repository, all our work is located in the [catkin_ws_jetson](https://gi
 Following each folder branch, there is an *src* folder in which are located all the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR), with a GPU (Jetson NANO) and a PC, ROS was of great help to make them all communicate together.
 
 In "catkin_ws_jetson", you will find the source code that is run on the Jetson NANO, which is a Graphical Processor Unit (GPU) we used for the project. The Jetson is used for the camera and the recognition using AI (Artificial Intelligence). Following this, you will find this :
-* *src/camera*
-* *src/ros_deep_learning*
-* *src/ros_recognition*
+* *src/camera* TBD
+* *src/ros_deep_learning* TBD
+* *src/ros_recognition* TBD
 
 In "catkin_ws_pc", you will find the source code that is run directly on the PC. On the PC, we run the Graphical User Interface (GUI), the LIDAR SDK (Software Design Kit), and the camera-LIDAR callibration and detection. Here is the list of the folders and their description : 
 * *src/boule_de_cristal*: GUI.
 * *src/lidar_camera_calibration*: for running callibration of the LIDAR with the camera, i.e. make sure they "see" the same scene.
-* *src/lidar_camera_detection*
-* *src/lidar_detection*
+* *src/lidar_camera_detection* TBD
+* *src/lidar_detection* TBD
 * *src/rslidar_sdk*: LIDAR SDK, the base code to start the LIDAR and receive its data.
 
 ### Installation
