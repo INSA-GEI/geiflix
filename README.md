@@ -1,5 +1,7 @@
 # 'BOULE DE CRISTAL' PROJECT
 
+![Boule de cristal](https://github.com/INSA-GEI/geiflix/blob/2022_diskdastardly/documentation/Boule_de_cristal.jpg)
+
 ## GeiBike Project
 
 The GeiBike project is a project carried out by students at [INSA Toulouse](http://www.insa-toulouse.fr/fr/index.html). This project consists in developing the software of a autonomous vehicule, base on a 3-wheels bike, in order to carry out different missions. Several projects are exposed on the [official website](https://sites.google.com/site/projetsecinsa/).
