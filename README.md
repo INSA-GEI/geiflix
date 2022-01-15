@@ -94,12 +94,15 @@ Do not forget to compile before running and every time a source code has been mo
 
     catkin_make
     
-Then you will need to launch the LIDAR SDK to start the LIDAR, then the lidar_detection to use the object detection
+Then you will need to launch the LIDAR SDK to start the LIDAR
 
     roslaunch rslidar_sdk start.launch
+    
+Then the lidar_detection to use the object detection in another command window
+
     roslaunch lidar_detection lidar_transfo.launch
 
-And also start the GUI:
+And also start the GUI in yet another command window
 
     rosrun boule_de_cristal boule_de_cristal
     
