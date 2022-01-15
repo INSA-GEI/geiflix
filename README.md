@@ -33,7 +33,7 @@ The projects are (or were) surpervised by:
 ### Content
 In this repository, all our work is located in the [catkin_ws_jetson](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_jetson) and [catkin_ws_pc](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_pc) folders. 
 
-Following each folder branch, there is an *src* folder in which are located all the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR), with a GPU (Jetson NANO) and a PC, ROS was of great help to make them all communicate together.
+Following each folder branch, there is an *src* folder in which are located all the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR) with a GPU (Jetson NANO) and a PC, ROS has been of great help to make them all communicate together.
 
 In "catkin_ws_jetson", you will find the source code that is run on the Jetson NANO, which is a Graphical Processor Unit (GPU) we used for the project. The Jetson is used for the camera and the recognition using AI (Artificial Intelligence). Following this, you will find this :
 * *src/camera* TBD
@@ -49,17 +49,21 @@ In "catkin_ws_pc", you will find the source code that is run directly on the PC.
 
 ### Installation
 
-#### Preliminary installations 
+#### Prerequisites
 
-You need to use the Linux Ubuntu 20.04 Operating System (OS). You will need to install the corresponding version of ROS: ros noetic.
+This project must be run on the Linux Ubuntu 20.04 Operating System (OS). 
+
+You will also need to install the corresponding version of ROS: ros noetic.
 You can follow this tutorial to install ros noetic on Ubuntu 20.04 : [How to install ros noetic on ubuntu 20.04](https://linoxide.com/how-to-install-ros-noetic-on-ubuntu-20-04/).
+
+#### Preliminary installations 
 
 First step, clone this repository and go to the branch *2022_diskdastardly*.
 
     git clone https://github.com/INSA-GEI/geiflix.git 
     git checkout 2022_diskdastardly 
     
-You also need to install two external git we reused for our project. You can follow their instructions on their GitHub for installation:
+You also need to install two external git we reused for our project. You can follow the instructions on their GitHub for installation:
 * [Jetson_GPIO](https://github.com/NVIDIA/jetson-gpio)
 * [Jetson_Inference](https://github.com/dusty-nv/ros_deep_learning.git)
 
@@ -67,24 +71,30 @@ Once this is done, you are ready to run the project !
 
 #### Launch the Jetson:
 
-Go to the Jetson catkin workspace, and do not forget to compile it:
+Go to the Jetson catkin workspace
 
     roscd catkin_ws_jetson
+    
+Do not forget to compile before running and every time a source code has been modified
+
     catkin_make
     
-Then you have to launch the *.launch* file in the *camera* folder
+Then you need to launch the *.launch* file in the *camera* folder
 
-    roslaunch camerausb_cam-cam_tricycle.launch
+    roslaunch camera usb_cam-cam_tricycle.launch
 
 
 #### Launch the PC source code
 
-Go to the PC catkin workspace, and do not forget to compile it:
+Go to the PC catkin workspace
 
     roscd catkin_ws_pc
+    
+Do not forget to compile before running and every time a source code has been modified
+
     catkin_make
     
-Then you will need to launch the following:
+Then you will need to launch the LIDAR SDK to start the LIDAR, then the lidar_detection to use the object detection
 
     roslaunch rslidar_sdk start.launch
     roslaunch lidar_detection lidar_transfo.launch
@@ -92,3 +102,8 @@ Then you will need to launch the following:
 And also start the GUI:
 
     rosrun boule_de_cristal boule_de_cristal
+    
+Now everything should be working fine ! 
+
+
+Should you have any question or encounter any problem during installation, feel free to contact our tech genius Pierre CALMETTES at : *pcalmett@insa-toulouse.fr*
