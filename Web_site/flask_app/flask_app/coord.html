@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8"> 
+    <title>Forest Fire Fighter by Zilly</title>
+    <link rel="stylesheet" href="coord.css">
+    <script src ="login.js"></script>
+</head>
+<body>
+    <script>test_log()</script>
+    <div class="main">
+        <div class="navbar">
+            <div class="icon">
+                <h2 class="logo">Zilly Team</h2>
+            </div>
+            <div class="menu">
+                <ul>
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="http://10.105.1.86:8001/">LIVE ALERTS</a></li>
+                    <li><a href="coord.html">CAR CONTROL</a></li>
+                    <li><a href="Team.html">TEAM</a></li>
+                    <li><a href="Demos.html">DEMONSTRATION</a></li>
+                    <li><a href="https://github.com/INSA-GEI/geiflix/tree/2022-Zilly">ABOUT</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="content">
+            <h1>Forest Fire Fighter <br><span>THIS LAND IS OUR LAND SO WE SHOULD PROTECT IT.</span></h1>
+            <div class="form">
+                <form action="gps.php" method="post">
+                <h2>Setup coordinates</h2>
+                <h4>Format : XX.XXXXX</h4>
+
+                <input  name="Xcoordinates" placeholder="Enter longitude" id="Xcoordinates">
+                <input  name="Ycoordinates" placeholder="Enter latitude" id="Ycoordinates">
+                <button class="btnn">VALIDATE</button>
+            </form>
+                <button class="btnn"><a href="index.html">RETURN</button>
+            </div>
+        </div>
+    </div>    
+</body>
+</html>

@@ -1,0 +1,93 @@
+body{
+    margin:0;
+    padding:0;
+    font-family: sans-serif;
+    background: url(bg.png);
+}
+.box{
+    width: 300px;
+    padding: 40px;
+    position: absolute ;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    text-align: center;
+}
+.box h1
+{
+    color: white;
+    text-transform: uppercase;
+    font-weight: 700;
+    
+    transform: translate(0%, -50%);
+}
+
+.box input[type="text"]
+{
+    border: 0;
+    background: none;
+    /*display: block;*/
+    margin: 20 px auto;
+    text-align: center;
+    border: 3px solid #ffffff;
+    padding: 14px 10px;
+    width: 220px;
+    outline: none;
+    color: white;
+    border-radius: 24px;
+    transition: 0.25px;
+    
+    /*transform: translate(10%, 10%);*/
+}
+.box input[type="password"]
+{
+    border: 0;
+    background: none;
+    /*display: block;*/
+    margin: 20 px auto;
+    text-align: center;
+    border: 3px solid #ffffff;
+    padding: 14px 10px;
+    width: 220px;
+    outline: none;
+    color: white;
+    border-radius: 24px;
+    transition: 0.25px;
+    transform: translate(0%, 30%);
+    
+    /*transform: translate(10%, 10%);*/
+}
+
+.box input[type="text"]:focus,.box input[type="password"]:focus
+{
+    width: 270px;
+    border-color:#ffffff;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.box input[type="submit"]
+{
+    border: 0;
+    background: white;
+    /*display: block;*/
+    margin: 20 px auto;
+    text-align: center;
+    padding: 14px 25px;
+    outline: none;
+    color: rgb(0, 0, 0);
+    border-radius: 24px;
+    transition: 0.25px;
+    cursor: pointer;    
+    transform: translate(0%, 60%);
+    /*transform: translate(140%, 30%);*/
+}
+
+.box input[type="submit"]:hover
+{
+   /* background: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);*/
+    
+    padding: 14px 30px;
+
+}

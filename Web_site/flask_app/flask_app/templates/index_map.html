@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type= "text/css" href="{{url_for('static', filename ='styles/index_map.css')}}">
+  <title>Forest Fire Fighter by Zilly</title>
+</head>
+
+<body>
+{% block content %}
+<div class="container-fluid" >
+  <div class="justify-content-center mb-3 border-bottom">
+    <h2 class="text-center">LIVE ALERTS </h2>
+    <button class="btnn"><a href="http://10.105.1.86:8000/index.html">RETURN</a></button>
+      <div class="col-md-8">
+        {{map|safe}}
+      </div>
+  </div>
+</div>
+{% endblock %}
+</body>
+</html>

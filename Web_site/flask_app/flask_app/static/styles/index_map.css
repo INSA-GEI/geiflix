@@ -1,0 +1,46 @@
+body{
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.4)5%, rgba(0,0,0,0.4)5%), url(backgrou.jpg);
+    background-position: center;
+    background-position-y: -1200px;
+    background-size: cover;
+    background-attachment: fixed;
+    height: 109vh;
+}
+
+h2{
+    width: 600px;
+    font-family: sans-serif;
+    text-align: center;
+    color: #ff7200;
+    font-size: 28px;
+    margin: 2px;
+    padding: 8px;
+    text-decoration: none;
+    letter-spacing: 15px;
+}
+
+.btnn{
+    width: 240px;
+    height: 40px;
+    background:#ff7200;
+    border: none;
+    margin-top: 30px;
+    margin-left: 20px;
+    margin-bottom: 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+}
+
+.btnn:hover{
+    background: white;
+    color: #ff7200;
+}
+
+.btnn a{
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+}

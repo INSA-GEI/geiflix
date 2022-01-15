@@ -1,0 +1,236 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.4)5%, rgba(0,0,0,0.4)5%), url(backgrou.jpg);
+    background-position: center;
+    background-position-y: -1200px;
+    background-size: cover;
+    background-attachment: fixed;
+    height: 109vh;
+}
+
+
+
+.navbar{
+    width: 1200px;
+    height: 75px;
+    margin: auto;
+    margin-top: 10px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6)50%,rgba(0, 0, 0, 0.6)50% );
+    border-radius: 10px;
+}
+.icon{
+    width: 200px;
+    float: left;
+    height: 70px;
+}
+
+.logo{
+    color: #ff7200;
+    font-size: 35px;
+    font-family: Arial;
+    padding-left: 30px;
+    float: left;
+    padding-top: 15px;
+}
+
+.menu{
+    width:1000px;
+    float: left;
+    height: 70px;
+}
+
+ul{
+    float: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+ul li{
+    list-style: none;
+    margin-left: 62px;
+    margin-top: 25px;
+    font-size: 18px;
+    align-items: center;
+}
+
+ul li a{
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    font-family: Arial;
+    font-weight: bold;
+    transition: 0.4s ease-in-out;
+}
+
+ul li a:hover{
+    color: #ff7200;
+}
+
+.content{
+    width: 1200px;
+    height: auto;
+    margin: auto;
+    color: white;
+    position: relative;
+    margin-left: auto;
+    margin-right: aut;
+}
+
+.content .par{
+    padding-left: 20px;
+    padding-bottom: 25px;
+    padding-top: 50px;
+    font-family: Arial;
+    letter-spacing: 1.2px;
+    line-height: 30px;
+    text-align: justify;
+}
+
+.content h1{
+    font-family: 'Times New Roman';
+    font-size: 30px;
+    padding-left: 20px;
+    margin-top: 9%;
+    letter-spacing: 2px;
+}
+
+.content .cn{
+    width: 160px;
+    height: 40px;
+    background: #ff7200;
+    border: none;
+    margin-bottom: 10px;
+    margin-right: 100px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.content .cn a{
+    text-decoration: none;
+    color: black;
+    transition: .3s ease;
+}
+
+.cn:hover{
+    background: white;
+}
+
+.content span{
+    color: #ff7200;
+    font-size: 50px;
+}
+
+.form{
+    width: 280px;
+    height: 350px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8)50%,rgba(0, 0, 0, 0.8)50% );
+    position:relative;
+    background-position-x: center;
+    background-position-y: center;
+    top: 20px;
+    left: 0px;
+    border-radius: 10px;
+    padding: 25px;
+    margin-top: 50px;
+    margin-bottom: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.form h2{
+    width: 220px;
+    font-family: sans-serif;
+    text-align: center;
+    color: #ff7200;
+    font-size: 22px;
+    background-color: white;
+    border-radius: 10px;
+    margin: 2px;
+    margin-left: 20px;
+    padding: 8px;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.form h4{
+    width: 220px;
+    font-family: Arial;
+    text-align: center;
+    font-size: 15px;
+    letter-spacing: 1px;
+    border-radius: 10px;
+    margin: 2px;
+    margin-top: 10px;
+    padding: 8px;
+    margin-left: 20px;
+    text-decoration: none;
+    margin-bottom: 15px;
+}
+
+
+.form input{
+    width: 240px;
+    height: 35px;
+    background: transparent;
+    border-bottom: 1px solid #ff7200;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    color: white;
+    font-size: 15px;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    margin-left: 20px;
+    font-family: sans-serif;
+}
+
+.form input:focus{
+    outline: none;
+}
+
+::placeholder{
+    color: white;
+    font-family: Arial;
+}
+
+.btnn{
+    width: 240px;
+    height: 40px;
+    background:#ff7200;
+    border: none;
+    margin-top: 30px;
+    margin-left: 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: white;
+}
+
+.btnn:hover{
+    background: white;
+    color: #ff7200;
+}
+
+.btnn a{
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+}
+
+.form .link{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+    padding-top: 20px;
+    text-align: center;
+}
+
+.form .link a{
+    text-decoration: none;
+    color: #ff7200;
+}
+

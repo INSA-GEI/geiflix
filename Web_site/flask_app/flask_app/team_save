@@ -1,0 +1,54 @@
+            <div class="slider">
+                <div class="sildes">
+                    <div class="slide"><img src="ph1.jpg" alt="" /></div>
+                    <div class="slide"><img src="ph2.jpg" alt="" /></div>
+                    <div class="slide"><img src="ph3.jpg" alt="" /></div>
+                    <div class="slide"><img src="ph4.jpg" alt="" /></div>
+                    <div class="slide"><img src="ph5.jpg" alt="" /></div>
+                    <div class="slide"><img src="ph6.png" alt="" /></div>
+
+                </div>
+            </div>
+
+
+            
+.slider{
+    width: 300px;
+    height: 400px;
+   margin-top: 500px;
+}
+
+.slides{
+    width: calc(400px * 6);
+    animation: glisses 10s infinite;
+}
+
+.slide{
+    float:left;
+}
+
+@keyframes glisses{
+    0% {
+        transform: translateY(0);
+    }
+    20% {
+        transform: translateY(200px);
+    }
+    40% {
+        transform: translateY(300px);
+    }
+    60% {
+        transform: translateY(-400px);
+    }
+    80% {
+        transform: translateY(-500px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+img{
+    max-width: 100%;
+	height: auto;
+}
