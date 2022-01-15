@@ -74,7 +74,7 @@ Go to the Jetson catkin workspace, and do not forget to compile it:
     
 Then you have to launch the *.launch* file in the *camera* folder
 
-    roslaunch camera ??.launch
+    roslaunch camerausb_cam-cam_tricycle.launch
 
 
 #### Launch the PC source code
