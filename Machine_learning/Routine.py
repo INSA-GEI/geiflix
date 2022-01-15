@@ -31,28 +31,44 @@ Img_Per_Rot=2
 Curr_Image=0
 Predictions=[]
 
-def Img_Treatment(cam,Rot_time=10,Img_Per_Rot=2, Curr_Img=0,Model_Path = './cifar_net_V3.pth',S_dir="/home/corentin/Desktop/TSFlow",Disp=False) :
+def Img_Treatment(cam,Rot_time=10,Img_Per_Rot=2,Model_Path = './cifar_net_V3.pth',S_dir="/home/corentin/Desktop/TSFlow",Disp=False) :
+    delay=0
+    Curr_Img=0
+    Predictions=[]
+    while Curr_Img < Img_Per_Rot:
+        Turn_Start=time.time()
 
-    classes = ('Fire', 'No_Fire')
+        if delay >= Rot_time/Img_Per_Rot:
+            
+            #Tuple containing classes name 
+            classes = ('Fire', 'No_Fire')
+            
+            #Capture one image with cam and save it
+            Get_data(cam,Display=Disp,index=Curr_Img)
+            os.chdir(S_dir)
 
-    Get_data(cam,Display=Disp,index=Curr_Img)
-    os.chdir(S_dir)
-    testset=FireSet("ImageSet/",transform=transform)
-    testloader=torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+            #Create dataset and dataloader to feed image taken to the neural network
+            testset=FireSet("ImageSet/",transform=transform)
+            testloader=torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
-    # create a net object and load pretrained nn
-    net=Fire_Net()
-    net.load_state_dict(torch.load(Model_Path))
+            # create a net object and load pretrained nn
+            net=Fire_Net()
+            net.load_state_dict(torch.load(Model_Path))
 
-    # get random training images with iter function
-    dataiter = iter(testloader)
-    images, labels = dataiter.next()
+            # get random training images with iter function
+            dataiter = iter(testloader)
+            images, labels = dataiter.next()
 
-    # run through net to make predictions
-    outputs = net(images)
+            # run through net to make predictions
+            outputs = net(images)
 
-    _, predicted = torch.max(outputs, 1)
-    return predicted
+            _, predicted = torch.max(outputs, 1)
+            
+            Predictions.append(classes[predicted])
+            Curr_Img+=1
+            delay=0
+
+    return Predictions
 
 
 
@@ -69,16 +85,21 @@ def Img_Treatment(cam,Rot_time=10,Img_Per_Rot=2, Curr_Img=0,Model_Path = './cifa
 
 
 if __name__ == "__main__":
-    
+    pass
+"""     
     delay=0
     while Curr_Image < Img_Per_Rot:
         Turn_Start=time.time()
 
         if delay >= Rot_time/Img_Per_Rot:
+
             q=time.time()
+
             Get_data(cap,Display=False,index=Curr_Image)
             os.chdir("/home/corentin/Desktop/TSFlow")
             print("Photo prise en : ", time.time()-q)
+
+
             testset=FireSet("ImageSet/",transform=transform)
             testloader=torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
             # create classes tuple to display answers
@@ -107,4 +128,4 @@ if __name__ == "__main__":
         Turn_End=time.time()
         delay+=(time.time()-Turn_Start)
 
-    print(Predictions)
+    print(Predictions) """
