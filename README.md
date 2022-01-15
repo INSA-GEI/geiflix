@@ -4,7 +4,7 @@
 
 ## GeiBike Project
 
-The GeiBike project is a project carried out by students at [INSA Toulouse](http://www.insa-toulouse.fr/fr/index.html). This project consists in developing the software of a autonomous vehicule, base on a 3-wheels bike, in order to carry out different missions. Several projects are exposed on the [official website](https://sites.google.com/site/projetsecinsa/).
+The GeiBike project is a project carried out by students at [INSA Toulouse](http://www.insa-toulouse.fr/fr/index.html). This project consists in developing the software of a autonomous vehicule, based on a 3-wheels bike, in order to carry out different missions. Several projects are exposed on the [official website](https://sites.google.com/site/projetsecinsa/).
 
 This repository is intended to provide a basis for students starting a new project on the GeiBike. The present code as well as the documentation is the result of the combination of the various projects carried out by:
 
@@ -33,9 +33,9 @@ The projects are (or were) surpervised by:
 ### Content
 In this repository, all our work is located in the [catkin_ws_jetson](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_jetson) and [catkin_ws_pc](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_pc) folders. 
 
-Following each folder branch, there is an *src* folder in which are located all the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR) with a GPU (Jetson NANO) and a PC, ROS has been of great help to make them all communicate together.
+Following each folder branch, there is an *src* folder in which is located the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR) with a GPU (Jetson NANO) and a PC, ROS has been of great help to make them all communicate together.
 
-In "catkin_ws_jetson", you will find the source code that is run on the Jetson NANO, which is a Graphical Processor Unit (GPU) we used for the project. The Jetson is used for the camera and the recognition using AI (Artificial Intelligence). Following this, you will find this :
+In "catkin_ws_jetson", you will find the source code that is run on the Jetson NANO, which is a Graphical Processing Unit (GPU) we used for the project. The Jetson is used for the camera and the recognition using AI (Artificial Intelligence). Following this, you will find this :
 * *src/camera* TBD
 * *src/ros_deep_learning* TBD
 * *src/ros_recognition* TBD
@@ -62,8 +62,9 @@ First step, clone this repository and go to the branch *2022_diskdastardly*.
 
     git clone https://github.com/INSA-GEI/geiflix.git 
     git checkout 2022_diskdastardly 
+    git pull
     
-You also need to install two external git we reused for our project. You can follow the instructions on their GitHub for installation:
+You also need to install two external git repositories we reused for our project. You can follow the instructions on their GitHub for installation:
 * [Jetson_GPIO](https://github.com/NVIDIA/jetson-gpio)
 * [Jetson_Inference](https://github.com/dusty-nv/ros_deep_learning.git)
 
