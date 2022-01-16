@@ -21,21 +21,21 @@
 /* Private define ------------------------------------------------------------*/
 
 #define RUN_SPEED 	0.527			// speed in meter/s when speed set at RUN --> init = 0.527
-#define JOG_SPEED 	0.17 			// speed in meter/s when speed set at JOG
+#define JOG_SPEED 	0.17 			// speed in meter/s when speed set at JOG --> init = 0.17
 #define RIGHT_ANGLE	8.306741531		// angle in degree traveled in 1 second when angle set at HARD_R
 #define LEFT_ANGLE	-8.366477998	// angle in degree traveled in 1 second when angle set a HARD_L
 
 
 #define DISABLED 	0
 
-//Definition des modes de vitesse :: SPEED MODES
+// Definition of SPEED MODES
 #define STOP 		50
 #define REVERSE 	40
 #define WALK 		58
 #define JOG 		60
 #define RUN 		75
 
-//Definition des modes de direction :: STEERING MODES
+// Definition of STEERING MODES
 #define STRAIGHT 	50
 #define HARD_L 		10
 #define MODT_L 		25
@@ -44,17 +44,18 @@
 #define MODT_R 		75
 #define SOFT_R 		60
 
-//Definition des pourcentages de differentiel
+// Definition of differential percentage for back motors
 #define DIFF_NONE 	0
 #define DIFF_SMALL 	5
 #define DIFF_MEDIUM 10
 #define DIFF_LARGE 	15
 
-//Definition des types d'azimut
+// Definition of azimuth types
 #define AZIMUT_FORWARD 	0
 #define AZIMUT_LEFT		1
 #define AZIMUT_RIGHT	2
 
+// extern variables
 extern double dist;
 extern double carLatitude;
 extern double carLongitude;
@@ -67,17 +68,22 @@ int CHANGE_TO_STOP=0;
 
 /* Programs ------------------------------------------------------------------*/
 
-/**
-*	Controle les MARG, MARD et MAV à partir de modeSpeed et modeSteer recus via le CAN
-**/
+
+
+/* brief	Control speed and steering commands according to the modeSpeed and modeSteer received by CAN frame SSC 0x020
+ * param	int requested_speed		modeSpeed requested between [0;100]
+ * 			int requestion_steer	modeSteer requested between [0;100]
+ * retval 	None
+ * */
 void car_control(int requested_speed, int requested_steer){
 	int diff = DIFF_NONE;
 	int azimut = AZIMUT_FORWARD;
 
-	// Limite la commande contenue dans le message CAN dans l'intervalle [0,100]
+	// limit the speed command received by the CAN frame between [0; 100] to the max speed
 	if (requested_speed > 75){requested_speed = 75;}
 
-	// Classification de la commande CAN recue
+
+	// classify the speed command
 	if (requested_speed == DISABLED) {requested_speed = DISABLED;}
 	else if (requested_speed <= REVERSE) {requested_speed = REVERSE;}
 	else if (requested_speed < WALK) {requested_speed = STOP;}
@@ -85,10 +91,10 @@ void car_control(int requested_speed, int requested_steer){
 	else if (requested_speed < RUN) {requested_speed = JOG;}
 	else {requested_speed = RUN;}
 
-	// Limite la commande contenue dans le message CAN dans l'intervalle [0,100]
+	// limit the steer command received by the CAN frame between [0; 100] to the max steer
 	if (requested_steer > 100){requested_steer = 100;}
 
-	// Classification de la commande CAN recue
+	// classify the steer command
 	if (requested_steer == DISABLED) {requested_steer = DISABLED;}
 	else if (requested_steer <= HARD_L) {requested_steer = HARD_L;}
 	else if (requested_steer <= MODT_L) {requested_steer = MODT_L;}
@@ -98,7 +104,7 @@ void car_control(int requested_speed, int requested_steer){
 	else if (requested_steer < HARD_R) {requested_steer = MODT_R;}
 	else {requested_steer = HARD_R;}
 
-	//Actionnement de la commande du moteur de direction
+	// send steering command to the front motor
 	switch(requested_steer) {
 		case STRAIGHT:
 			diff = DIFF_NONE;
@@ -142,7 +148,9 @@ void car_control(int requested_speed, int requested_steer){
 			break;
 		}
 
-	//Actionnement de la commande des moteurs de propulsion
+
+
+	// send speed command to back motors
 	switch(requested_speed) {
 		case STOP:
 			wheels_set_speed(GPIO_PIN_RESET, GPIO_PIN_RESET, STOP, STOP);
@@ -173,6 +181,60 @@ void car_control(int requested_speed, int requested_steer){
 	}
 
 }
+
+
+
+
+
+
+
+
+/* ********************************************************************************************/
+/* *****************	CALCULATE ANGLES NEEDED TO DIRECTED THE CAR		***********************/
+/* ********************************************************************************************/
+
+
+/* brief	Determine the angle between the North and the car
+ * param	double carLatitudePre, double carLongitudePre		Previous GPS coordinates of the car
+ * 			double carLatitude, double carLongitude				Actual GPS coordinates of the car
+ * retval	double angleCar		Angle between the North and the car
+ * */
+double get_angle_car(double carLatPre, double carLongPre, double carLat, double carLong){
+	return get_angle_GPS(carLatPre, carLongPre, carLat, carLong);
+}
+
+/* brief	Determine the angle between the North and the destination
+ * param	double carLatitude, double carLongitude		Actual GPS coordinates of the car
+ * 			double destLatitude, double destLongitude	Actual GPS coordinates of the destination
+ * retval	double angleDest	Angle between the North and the destination
+ * */
+double get_angle_dest(double carLat, double carLong, double destLat, double destLong){
+	return get_angle_GPS(carLat, carLong, destLat, destLong);
+}
+
+
+/* brief	Determine the angle we need to turn to join the right location
+ * param	double angleCar		Angle between the North and the car
+ * 			double angleDest	Angle between the North and the destination
+ * retval	double angleToGo	Angle between the car and the destination
+ * */
+double get_angle_to_go(double angleCar, double angleDest) {
+	double angleToGo = angleDest - angleCar;
+	return (angleToGo);
+}
+
+
+
+
+
+
+
+
+/* ********************************************************************************************/
+/* **********************	CAR MOVEMENT WITHOUT GPS CONNECTED		***************************/
+/* ********************************************************************************************/
+
+
 
 /* brief	Calculate the movement of the car according to the distance between the car and the location we want to join
  * param	double distance	Distance between the two GPS location in meters
@@ -318,40 +380,21 @@ void movement_without_GPS(double carLatitudeStart, double carLongitudeStart, dou
 			carLatitude = get_new_latitude(carLatitudeStart, angleCar, JOG_SPEED*cnt);
 			carLongitude = get_new_longitude(carLatitudeStart, carLongitudeStart, carLatitude, angleCar, JOG_SPEED*cnt);
 			cnt++;
-
 		}
 	}
 
 }
 
-/* brief	Determine the angle between the North and the car
- * param	double carLatitudePre, double carLongitudePre		Previous GPS coordinates of the car
- * 			double carLatitude, double carLongitude				Actual GPS coordinates of the car
- * retval	double angleCar		Angle between the North and the car
- * */
-double get_angle_car(double carLatPre, double carLongPre, double carLat, double carLong){
-	return get_angle_GPS(carLatPre, carLongPre, carLat, carLong);
-}
-
-/* brief	Determine the angle between the North and the destination
- * param	double carLatitude, double carLongitude		Actual GPS coordinates of the car
- * 			double destLatitude, double destLongitude	Actual GPS coordinates of the destination
- * retval	double angleDest	Angle between the North and the destination
- * */
-double get_angle_dest(double carLat, double carLong, double destLat, double destLong){
-	return get_angle_GPS(carLat, carLong, destLat, destLong);
-}
 
 
-/* brief	Determine the angle we need to turn to join the right location
- * param	double angleCar		Angle between the North and the car
- * 			double angleDest	Angle between the North and the destination
- * retval	double angleToGo	Angle between the car and the destination
- * */
-double get_angle_to_go(double angleCar, double angleDest) {
-	double angleToGo = angleDest - angleCar;
-	return (angleToGo);
-}
+
+
+
+/* ********************************************************************************************/
+/* *************************	CAR MOVEMENT WITH GPS CONNECTED		***************************/
+/* **************************	!!!! NOT OPERATIONNAL YET !!!!	*******************************/
+/* ********************************************************************************************/
+
 
 
 /* brief	Manage the direction of the car according to the angle between the car axis and the GPS location
@@ -419,6 +462,16 @@ void movement_with_GPS(double carLat, double carLong, double carLatPre, double c
 	direction_speed_management_with_GPS(distance, angleToGo);
 }
 
+
+
+
+
+
+
+/* ********************************************************************************************/
+/* **************************	MOVEMENT FOR FIRE DETECTION 	*******************************/
+/* ********************************************************************************************/
+
 /* brief	Make a 360 degrees turn
  * param	None
  * retval	None
@@ -438,8 +491,6 @@ void turn360(void) {
 		diffTime = currentTime - startTime;
 
 		if (diffTime/1000 > cnt) {
-			//steering_set_position(GPIO_PIN_SET, HARD_R);
-			//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, RUN);
 			car_control(JOG, HARD_R);
 			if(angleCar > 360) angleCar = angleCar-360;
 			angleCar = angleCar + RIGHT_ANGLE;
@@ -447,15 +498,12 @@ void turn360(void) {
 		}
 	}
 
-		//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, STOP, STOP);
-		//steering_set_position(GPIO_PIN_SET, STRAIGHT);
-		car_control(STOP, STRAIGHT);
+	car_control(STOP, STRAIGHT);
 
-	//wheels_set_speed(GPIO_PIN_SET, GPIO_PIN_SET, (60*(100+(2*DIFF_LARGE)/3))/100, (60*(100-DIFF_LARGE/3))/100);
 
 }
 
-/* brief	If a fire is detected, wait until
+/* brief	If a fire is detected, wait until the user tell that the car can start again
  * param	None
  * retval	None
  * */

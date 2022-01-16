@@ -13,10 +13,56 @@ extern int modeSteer;
 
 #include <stdbool.h>
 
-/**
-*	Controle les MARG, MARD et MAV à partir de modeSpeed et modeSteer recus via le CAN
-**/
+/* brief	Control speed and steering commands according to the modeSpeed and modeSteer received by CAN frame SSC 0x020
+ * param	int requested_speed		modeSpeed requested between [0;100]
+ * 			int requestion_steer	modeSteer requested between [0;100]
+ * retval 	None
+ * */
 void car_control(int requested_speed, int requested_steer);
+
+
+
+
+
+
+/* ********************************************************************************************/
+/* *****************	CALCULATE ANGLES NEEDED TO DIRECTED THE CAR		***********************/
+/* ********************************************************************************************/
+
+
+
+
+
+/* brief	Determine the angle between the North and the car
+ * param	double carLatitudePrec, double carLongitudePrec		Previous GPS coordinates of the car
+ * 			double carLatitude, double carLongitude				Actual GPS coordinates of the car
+ * retval	double angleCar		Angle between the North and the car
+ * */
+double get_angle_car(double carLatPre, double carLongPre, double carLat, double carLong);
+
+/* brief	Determine the angle between the North and the destination
+ * param	double carLatitude, double carLongitude		Actual GPS coordinates of the car
+ * 			double destLatitude, double destLongitude	Actual GPS coordinates of the destination
+ * retval	double angleDest	Angle between the North and the destination
+ * */
+double get_angle_dest(double carLat, double carLong, double destLat, double destLong);
+
+/* brief	Determine the angle we need to turn to join the right location
+ * param	double angleCar		Angle between the North and the car
+ * 			double angleDest	Angle between the North and the destination
+ * retval	double angleToGo	Angle between the car and the destination
+ * */
+double get_angle_to_go(double angleCar, double angleDest);
+
+
+
+
+
+
+
+/* ********************************************************************************************/
+/* **********************	CAR MOVEMENT WITHOUT GPS CONNECTED		***************************/
+/* ********************************************************************************************/
 
 
 /* brief	Calculate the movement of the car according to the distance between the car and the location we want to join
@@ -40,26 +86,19 @@ double direction_speed_management_without_GPS(double distance, double angleToGo,
  **/
 void movement_without_GPS(double carLatitudeStart, double carLongitudeStart, double destLatitude, double destLongitude);
 
-/* brief	Determine the angle between the North and the car
- * param	double carLatitudePrec, double carLongitudePrec		Previous GPS coordinates of the car
- * 			double carLatitude, double carLongitude				Actual GPS coordinates of the car
- * retval	double angleCar		Angle between the North and the car
- * */
-double get_angle_car(double carLatPre, double carLongPre, double carLat, double carLong);
 
-/* brief	Determine the angle between the North and the destination
- * param	double carLatitude, double carLongitude		Actual GPS coordinates of the car
- * 			double destLatitude, double destLongitude	Actual GPS coordinates of the destination
- * retval	double angleDest	Angle between the North and the destination
- * */
-double get_angle_dest(double carLat, double carLong, double destLat, double destLong);
 
-/* brief	Determine the angle we need to turn to join the right location
- * param	double angleCar		Angle between the North and the car
- * 			double angleDest	Angle between the North and the destination
- * retval	double angleToGo	Angle between the car and the destination
- * */
-double get_angle_to_go(double angleCar, double angleDest);
+
+
+
+
+
+
+/* ********************************************************************************************/
+/* *************************	CAR MOVEMENT WITH GPS CONNECTED		***************************/
+/* **************************	!!!! NOT OPERATIONNAL YET !!!!	*******************************/
+/* ********************************************************************************************/
+
 
 /* brief	Manage the direction of the car according to the angle between the car axis and the GPS location
  * param	double angleToGo	Angle between the axis of the car and the GPS location in degrees
@@ -82,6 +121,15 @@ void direction_speed_management_with_GPS(double distance, double angleToGo);
  * retval 	None
  * */
 void movement_with_GPS(double carLat, double carLong, double carLatPrec, double carLongPrec, double destLat, double destLong);
+
+
+
+
+
+
+/* ********************************************************************************************/
+/* **************************	MOVEMENT FOR FIRE DETECTION 	*******************************/
+/* ********************************************************************************************/
 
 
 /* brief	Make a 360 degrees turn
