@@ -110,17 +110,25 @@ def can_init():
             bus.send(gps_coord_A)        
             print("Coordinates A sent")
             
+            time.sleep(2)
+            
             gps_coord_B = can.Message(arbitration_id=0x031,data=[B_deg_la,B_min_la,B_sec_la,B_sec_sec_la,B_deg_lo,B_min_lo,B_sec_lo,B_sec_sec_lo],extended_id=False)
             bus.send(gps_coord_B)        
             print("Coordinates B sent")
+            
+            time.sleep(2)
             
             gps_coord_C = can.Message(arbitration_id=0x031,data=[C_deg_la,C_min_la,C_sec_la,C_sec_sec_la,C_deg_lo,C_min_lo,C_sec_lo,C_sec_sec_lo],extended_id=False)
             bus.send(gps_coord_C)        
             print("Coordinates C sent")
             
+            time.sleep(2)
+            
             gps_coord_D = can.Message(arbitration_id=0x031,data=[D_deg_la,D_min_la,D_sec_la,D_sec_sec_la,D_deg_lo,D_min_lo,D_sec_lo,D_sec_sec_lo],extended_id=False)
             bus.send(gps_coord_D)        
             print("Coordinates D sent")
+            
+            time.sleep(2)
             
             gps_coord_E = can.Message(arbitration_id=0x031,data=[E_deg_la,E_min_la,E_sec_la,E_sec_sec_la,E_deg_lo,E_min_lo,E_sec_lo,E_sec_sec_lo],extended_id=False)
             bus.send(gps_coord_E)        
