@@ -3,42 +3,10 @@ import datetime
 import can
 import os
 import RPi.GPIO as GPIO
+from receiver import Init_Pican
 
-# print("sleeping for 15 s")
-# for i in range(30,0,-1):
-#     time.sleep(1)
-#     print(i)
-
-MCM = 0x010
-MS = 0x100
-US1 = 0x000
-US2 = 0x001
-OM1 = 0x101
-OM2 = 0x102
-
-led = 22
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(led,GPIO.OUT)
-GPIO.output(led,True)
-
-print('\n\rCAN Rx test')
-print('Bring up CAN0....')
-
-# Bring up can0 interface at 400kbps
-os.system("sudo ifconfig can0 down")
-os.system("sudo /sbin/ip link set can0 up type can bitrate 400000")
-time.sleep(0.1)
-print('Press CTL-C to exit')
-
-try:
-    bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
-except OSError:
-    print('Cannot find PiCAN board.')
-    GPIO.output(led,False)
-    exit()
-
-def can_init():
+def Path_Init(bus):
+    path=[]
     path_point = 0
     value = 0
     with open("path_coord.txt", "r") as data_file: #Opening of the file containing coordinates of the fire detected
@@ -141,7 +109,7 @@ def can_init():
             print('\n\rKeyboard interrupt: CAN down')
     
                 
-def gps_read():
+def Gps_Read():
     counter = 0
     alist = []
     while counter < 3:
@@ -166,6 +134,36 @@ def gps_read():
         
             
 if __name__ == "__main__":
+
+    MCM = 0x010
+    MS = 0x100
+    US1 = 0x000
+    US2 = 0x001
+    OM1 = 0x101
+    OM2 = 0x102
+
+    led = 22
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    GPIO.setup(led,GPIO.OUT)
+    GPIO.output(led,True)
+
+    print('\n\rCAN Rx test')
+    print('Bring up CAN0....')
+
+    # Bring up can0 interface at 400kbps
+    os.system("sudo ifconfig can0 down")
+    os.system("sudo /sbin/ip link set can0 up type can bitrate 400000")
+    time.sleep(0.1)
+    print('Press CTL-C to exit')
+
+    try:
+        bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
+    except OSError:
+        print('Cannot find PiCAN board.')
+        GPIO.output(led,False)
+        exit()
+
     lines = []
     i = 0
     gps_data = []
