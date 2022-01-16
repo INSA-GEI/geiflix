@@ -7,28 +7,11 @@ import json
 import time
 from IPython.core.display import display, HTML
 from multiprocessing import Process, Pipe
+from io import BytesIO
+from folium.features import CustomIcon
 
 alist0=[43.57076, 1.46604] #Actual coordiantes of GEI at INSA.
 path = []
-
-# 'red',
-#     'blue',
-#     'gray',
-#     'darkred',
-#     'lightred',
-#     'orange',
-#     'beige',
-#     'green',
-#     'darkgreen',
-#     'lightgreen',
-#     'darkblue',
-#     'lightblue',
-#     'purple',
-#     'darkpurple',
-#     'pink',
-#     'cadetblue',
-#     'lightgray',
-#     'black
 
 app = Flask(__name__)
 
@@ -43,27 +26,22 @@ def home():
     path_point = 0
     value = 0
     with open("path_coord.txt", "r") as data_file: #Opening of the file containing coordinates of the fire detected
-        
         while 1:
             num_lines = sum(1 for line in data_file)
             if num_lines >= 5:
                 break
         data_file.close()
             
-        while len(path) < 4  and path_point < 5:
-            # Ouvrir le fichier en lecture seule
+        while len(path) < 5  and path_point < 5:
             file = open("path_coord.txt", "r")
-            # utilisez readline() pour lire la première ligne
             line = file.readline()
             while line:
                 print(line)
                 value = json.loads(line)
                 path.append(value)
                 path_point += 1
-                # utilisez readline() pour lire la ligne suivante
                 line = file.readline()
-            file.close()
-            #Montrer le chemin sur la map     
+            file.close()     
     with open("fire_coord.txt", "r") as data_file: #Opening of the file containing coordinates of the fire detected
         while 1: 
            where = data_file.tell() #Get the current position of the cursor
@@ -121,6 +99,8 @@ def home():
                resolution, width, height = 75, 50, 5
                iframe = IFrame(html(encoded.decode('UTF-8')), width=(width*resolution) + 20, height=(height*resolution) + 20)
                popup = folium.Popup(iframe, max_width= 50)
+               #The previous lines allow the possibility to put an image as a popup.
+         
                folium.Marker(
                location = path[4],
                popup="<b>The first point is A</b>",
@@ -152,8 +132,7 @@ def home():
                icon=folium.Icon(color="beige", icon="leaf")
                ).add_to(map)
                
-               #The previous lines allow the possibility to put an image as a popup.
-               
+               #Adding the fire location
                folium.Marker(
                location = aliste,
                popup=popup,
@@ -164,19 +143,6 @@ def home():
                     radius=10
                    ).add_to(map)
                print(aliste)
-#                else: #In no fire detected
-#                    map = folium.Map(
-#                         location = aliste,
-#                         zoom_start = 15
-#                    )
-#                    folium.Marker(
-#                    location = aliste,
-#                    zoom_start = 15,
-#                    popup="<b>Welcom to Zilly localization. No fire detected</b>",
-#                    tooltip="No fire detected",
-#                    icon=folium.Icon(color="green", icon="leaf")
-#                    ).add_to(map)
-#                    print(aliste)
                return render_template("index.html", map=map._repr_html_()) #Create an internal HTML file which is automatically show in output.
                   
 
