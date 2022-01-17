@@ -36,24 +36,24 @@ In this repository, all our work is located in the [catkin_ws_jetson](https://gi
 Following each folder branch, there is an *src* folder in which is located the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR) with a GPU (Jetson NANO) and a PC, ROS has been of great help to make them all communicate together.
 
 In "catkin_ws_jetson", you will find the source code that is run on the Jetson NANO, which is a Graphical Processing Unit (GPU) we used for the project. The Jetson is used for the camera and the recognition using AI (Artificial Intelligence). Following this, you will find this :
-* *src/camera* TBD
-* *src/ros_deep_learning* TBD
-* *src/ros_recognition* TBD
+* *src/camera*: contains a ros launch to run an image_view of the camera and the AI detectnet.
+* *src/ros_deep_learning*: detectnet, the AI
+* *src/ros_recognition*: contains a script which subscribes to the topics of detectnet and raises an alarm with a GPIO buzzer i a person is detected. 
 
 In "catkin_ws_pc", you will find the source code that is run directly on the PC. On the PC, we run the Graphical User Interface (GUI), the LIDAR SDK (Software Design Kit), and the camera-LIDAR callibration and detection. Here is the list of the folders and their description : 
 * *src/boule_de_cristal*: GUI.
 * *src/lidar_camera_calibration*: for running callibration of the LIDAR with the camera, i.e. make sure they "see" the same scene.
-* *src/lidar_camera_detection* TBD
-* *src/lidar_detection* TBD
+* *src/lidar_camera_detection*: for the display of the LIDAR distances on the camera images.
+* *src/lidar_detection*: for the transformation in 2D of LIDAR points.
 * *src/rslidar_sdk*: LIDAR SDK, the base code to start the LIDAR and receive its data.
 
 ### Installation
 
 #### Prerequisites
 
-This project must be run on the Linux Ubuntu 20.04 Operating System (OS). 
+This project must be run on either the Linux Ubuntu 18.04 or 20.04. 
 
-You will also need to install the corresponding version of ROS: ros noetic.
+You will also need to install the corresponding version of ROS: ros melodic or noetic.
 You can follow this tutorial to install ros noetic on Ubuntu 20.04 : [How to install ros noetic on ubuntu 20.04](https://linoxide.com/how-to-install-ros-noetic-on-ubuntu-20-04/).
 
 #### Preliminary installations 
@@ -110,4 +110,4 @@ And also start the GUI in yet another command window
 Now everything should be working fine ! 
 
 
-Should you have any question or encounter any problem during installation, feel free to contact our tech genius Pierre CALMETTES at : *pcalmett@insa-toulouse.fr*
+Should you have any question or encounter any problem during installation, feel free to contact our tech Pierre CALMETTES at : *pcalmett@insa-toulouse.fr*
