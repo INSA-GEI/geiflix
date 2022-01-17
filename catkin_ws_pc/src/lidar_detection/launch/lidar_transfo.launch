@@ -15,6 +15,12 @@
     name="lidar_detection"
     output="screen" />
 
+  <node
+    pkg="lidar_detection"
+    type="lidar_close.py"
+    name="lidar_close"
+    output="screen" />
+
 
    <!-- <include file="$(find lidar_camera_detection)/launch/affichage_calibration.launch" /> -->
 

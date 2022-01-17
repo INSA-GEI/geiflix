@@ -93,16 +93,7 @@ class Detection:
 
         newPoints = points3D
 
-        """
-        for point in points3D:
-            if math.sqrt(point[0]*point[0] +
-                                     point[1]*point[1] +
-                                     point[2]*point[2]) < 2:
-                newPoints.append(point)
 
-        newPoints = np.array(newPoints)
-        """
-        
         #FIlter points
         inrange = np.where((newPoints[:, 2] > -1) &
                            (newPoints[:, 2] < 3) &

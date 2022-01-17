@@ -60,7 +60,8 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
   }
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow() {
+}
 
 /*****************************************************************************
 ** Implementation [Slots]
@@ -82,19 +83,18 @@ void MainWindow::on_button_connect_clicked(bool check) {
   if (ui.checkbox_use_environment->isChecked()) {
     if (!qnode.init()) {
       showNoMasterMessage();
+      return ;
     } else {
       ui.button_connect->setEnabled(false);
       ui.button_list->setEnabled(true);
       ui.button_image->setEnabled(true);
       ui.button_cam_with_pts->setEnabled(true);
-      imageNode = new ImageNode("/usb_cam/image_raw");
-      camLidarNode = new ImageNode("/usb_cam/camera_lidar");
-      camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
     }
   } else {
     if (!qnode.init(ui.line_edit_master->text().toStdString(),
                     ui.line_edit_host->text().toStdString())) {
       showNoMasterMessage();
+      return ;
     } else {
       ui.button_connect->setEnabled(false);
       ui.button_list->setEnabled(true);
@@ -103,11 +103,21 @@ void MainWindow::on_button_connect_clicked(bool check) {
       ui.line_edit_master->setReadOnly(true);
       ui.line_edit_host->setReadOnly(true);
       ui.line_edit_topic->setReadOnly(true);
-      imageNode = new ImageNode("/usb_cam/image_raw");
-      camLidarNode = new ImageNode("/usb_cam/camera_lidar");
-      camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
+
     }
-  }
+  } 
+  ros::NodeHandle nh ; 
+  imageNode = new ImageNode("/usb_cam/image_raw", nh);
+  //camLidarNode = new ImageNode("/usb_cam/camera_lidar");
+  //camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
+  alertNode = new AlertNode("/alert", nh);
+  std::thread t([](){
+    //ros::spin();
+    ros::AsyncSpinner spinner(4); // Use 4 threads
+    spinner.start();
+    ros::waitForShutdown();
+  });
+  t.detach();
 }
 
 void MainWindow::on_button_list_clicked(bool checked) { qnode.list(); }

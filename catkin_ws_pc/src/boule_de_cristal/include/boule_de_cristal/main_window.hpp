@@ -15,7 +15,9 @@
 #include <QMainWindow>
 #include "boule_de_cristal/ui_main_window.h"
 #include "image_node.hpp"
+#include "alert_node.hpp"
 #include "qnode.hpp"
+#include <thread>
 
 /*****************************************************************************
 ** Namespace
@@ -71,6 +73,7 @@ private slots:
   ImageNode * imageNode ;
   ImageNode * camLidarNode ;
   ImageNode * camLidarIANode ;
+  AlertNode * alertNode ;
 };
 
 }  // namespace boule_de_cristal

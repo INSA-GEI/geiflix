@@ -8,7 +8,7 @@ from sensor_msgs import point_cloud2 as pc2
 from sensor_msgs.msg import Image, PointCloud2, PointField
 import numpy as np
 import math
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Int16
 import ros_numpy
 import cv2
 import message_filters
@@ -27,6 +27,7 @@ CV_BRIDGE = CvBridge()
 class Detection:
     def __init__(self):
         self.pointCloud = None
+        self.pubAlerte = rospy.Publisher("/alerte", Int16, queue_size=5)
 
     def lidar_pc_callback(self, data):
         global pointCloudtest
@@ -58,6 +59,13 @@ class Detection:
                             fontScale,
                             fontColor,
                             thickness)
+
+                if (closest_point < 1 and detection.results[0].id == 1):
+                    alerte = Int16()
+                    alerte.data = 1
+                    self.pubAlerte.publish(alerte)
+
+
 
 
 
