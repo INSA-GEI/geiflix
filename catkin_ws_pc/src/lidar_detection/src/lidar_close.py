@@ -8,8 +8,6 @@ from sensor_msgs.msg import PointCloud2, PointField
 import math
 from std_msgs.msg import Header
 
-
-
 pub = rospy.Publisher("coordinates_close", PointCloud2, queue_size=10)
 
 def callback(data):

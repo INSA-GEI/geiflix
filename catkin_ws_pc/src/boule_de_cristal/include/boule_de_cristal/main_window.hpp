@@ -13,11 +13,11 @@
 *****************************************************************************/
 
 #include <QMainWindow>
+#include <thread>
+#include "alert_node.hpp"
 #include "boule_de_cristal/ui_main_window.h"
 #include "image_node.hpp"
-#include "alert_node.hpp"
 #include "qnode.hpp"
-#include <thread>
 
 /*****************************************************************************
 ** Namespace
@@ -59,21 +59,21 @@ class MainWindow : public QMainWindow {
   *******************************************/
   void updateLoggingView();  // no idea why this can't connect automatically
 
-private slots:
+ private slots:
   void on_button_cam_with_IA_clicked(bool checked);
 
-private slots:
+ private slots:
   void on_button_cam_with_pts_clicked(bool checked);
 
-private slots:
+ private slots:
 
  private:
   Ui::MainWindowDesign ui;
   QNode qnode;
-  ImageNode * imageNode ;
-  ImageNode * camLidarNode ;
-  ImageNode * camLidarIANode ;
-  AlertNode * alertNode ;
+  ImageNode *imageNode;
+  ImageNode *camLidarNode;
+  ImageNode *camLidarIANode;
+  AlertNode *alertNode;
 };
 
 }  // namespace boule_de_cristal

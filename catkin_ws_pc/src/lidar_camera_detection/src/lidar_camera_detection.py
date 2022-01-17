@@ -60,15 +60,10 @@ class Detection:
                             fontColor,
                             thickness)
 
-                if (closest_point < 1 and detection.results[0].id == 1):
+                if (closest_point <= 1 and detection.results[0].id == 1):
                     alerte = Int16()
                     alerte.data = 1
                     self.pubAlerte.publish(alerte)
-
-
-
-
-
 
             # Publish the projected points image
             try:
@@ -87,7 +82,6 @@ def main():
     detection = Detection()
     img_detection_sub = message_filters.Subscriber(image_detection, Image)
     data_detection_sub = message_filters.Subscriber(data_detection, Detection2DArray)
-    #lidar_sub = message_filters.Subscriber('/coordinates_lidar_2d', PointCloud2)
 
 
     image_pub = rospy.Publisher("/usb_cam/cam_with_dist", Image, queue_size=5)
@@ -96,8 +90,6 @@ def main():
             [img_detection_sub,data_detection_sub], queue_size=1, slop = 0.1)
 
     ats.registerCallback(detection.camera_detection_callback, image_pub)
-
-
 
     rospy.Subscriber("/coordinates_lidar_2d", PointCloud2, detection.lidar_pc_callback)
 

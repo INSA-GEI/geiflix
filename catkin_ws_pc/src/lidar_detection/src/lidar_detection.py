@@ -27,10 +27,6 @@ TF_LISTENER = None
 
 CV_BRIDGE = CvBridge()
 
-
-
-
-
 class Detection:
     def __init__(self):
         self.pub = rospy.Publisher("coordinates_lidar_2d", PointCloud2, queue_size=1)

@@ -49,7 +49,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
                    SLOT(updateLoggingView()));
 
   ui.button_list->setEnabled(false);
-  ui.button_image->setEnabled(false) ;
+  ui.button_image->setEnabled(false);
   ui.button_cam_with_pts->setEnabled(false);
 
   /*********************
@@ -60,8 +60,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
   }
 }
 
-MainWindow::~MainWindow() {
-}
+MainWindow::~MainWindow() {}
 
 /*****************************************************************************
 ** Implementation [Slots]
@@ -83,7 +82,7 @@ void MainWindow::on_button_connect_clicked(bool check) {
   if (ui.checkbox_use_environment->isChecked()) {
     if (!qnode.init()) {
       showNoMasterMessage();
-      return ;
+      return;
     } else {
       ui.button_connect->setEnabled(false);
       ui.button_list->setEnabled(true);
@@ -94,7 +93,7 @@ void MainWindow::on_button_connect_clicked(bool check) {
     if (!qnode.init(ui.line_edit_master->text().toStdString(),
                     ui.line_edit_host->text().toStdString())) {
       showNoMasterMessage();
-      return ;
+      return;
     } else {
       ui.button_connect->setEnabled(false);
       ui.button_list->setEnabled(true);
@@ -103,17 +102,15 @@ void MainWindow::on_button_connect_clicked(bool check) {
       ui.line_edit_master->setReadOnly(true);
       ui.line_edit_host->setReadOnly(true);
       ui.line_edit_topic->setReadOnly(true);
-
     }
-  } 
-  ros::NodeHandle nh ; 
+  }
+  ros::NodeHandle nh;
   imageNode = new ImageNode("/usb_cam/image_raw", nh);
-  //camLidarNode = new ImageNode("/usb_cam/camera_lidar");
-  //camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
+  camLidarNode = new ImageNode("/usb_cam/camera_lidar");
+  camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
   alertNode = new AlertNode("/alert", nh);
-  std::thread t([](){
-    //ros::spin();
-    ros::AsyncSpinner spinner(4); // Use 4 threads
+  std::thread t([]() {
+    ros::AsyncSpinner spinner(4);  // Use 4 threads
     spinner.start();
     ros::waitForShutdown();
   });
@@ -203,59 +200,37 @@ void MainWindow::closeEvent(QCloseEvent *event) {
   QMainWindow::closeEvent(event);
 }
 
-
 void MainWindow::on_button_image_clicked(bool checked) {
-  QString button_text = ui.button_image->text() ;
-  if (button_text.compare("Voir camera") == 0)
-  {
+  QString button_text = ui.button_image->text();
+  if (button_text.compare("Voir camera") == 0) {
     ui.button_image->setText("Fermer camera");
-    imageNode->showCamera() ;
-  }
-  else
-  {
+    imageNode->showCamera();
+  } else {
     imageNode->hideCamera();
     ui.button_image->setText("Voir camera");
   }
-
 }
-void MainWindow::on_button_cam_with_pts_clicked(bool checked)
-{
-  QString button_text = ui.button_cam_with_pts->text() ;
-  if (button_text.compare("Voir camera + pts du lidar") == 0)
-  {
+void MainWindow::on_button_cam_with_pts_clicked(bool checked) {
+  QString button_text = ui.button_cam_with_pts->text();
+  if (button_text.compare("Voir camera + pts du lidar") == 0) {
     ui.button_cam_with_pts->setText("Fermer camera + pts du lidar");
-    camLidarNode->showCamera() ;
-  }
-  else
-  {
+    camLidarNode->showCamera();
+  } else {
     camLidarNode->hideCamera();
     ui.button_cam_with_pts->setText("Voir camera + pts du lidar");
   }
-
-
 }
 
-void MainWindow::on_button_cam_with_IA_clicked(bool checked)
-{
+void MainWindow::on_button_cam_with_IA_clicked(bool checked) {
   QString button_text = ui.button_cam_with_IA->text();
-  if (button_text.compare("Voir camera + IA + distance") == 0)
-  {
+  if (button_text.compare("Voir camera + IA + distance") == 0) {
     ui.button_cam_with_IA->setText("Fermer camera + IA + distance");
     camLidarIANode->showCamera();
-  }
-  else
-  {
+  } else {
     camLidarIANode->hideCamera();
     ui.button_cam_with_IA->setText("Voir camera + IA + distance");
   }
-
 }
 
-
 }  // namespace boule_de_cristal
-
-
-
-
-
 
