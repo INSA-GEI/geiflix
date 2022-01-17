@@ -106,11 +106,11 @@ void MainWindow::on_button_connect_clicked(bool check) {
   }
   ros::NodeHandle nh;
   imageNode = new ImageNode("/usb_cam/image_raw", nh);
-  camLidarNode = new ImageNode("/usb_cam/camera_lidar");
-  camLidarIANode = new ImageNode("/usb_cam/cam_with_dist");
+  camLidarNode = new ImageNode("/usb_cam/camera_lidar",nh);
+  camLidarIANode = new ImageNode("/usb_cam/cam_with_dist",nh);
   alertNode = new AlertNode("/alert", nh);
   std::thread t([]() {
-    ros::AsyncSpinner spinner(4);  // Use 4 threads
+    ros::AsyncSpinner spinner(0);
     spinner.start();
     ros::waitForShutdown();
   });

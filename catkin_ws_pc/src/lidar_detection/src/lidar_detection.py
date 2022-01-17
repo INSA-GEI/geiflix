@@ -65,6 +65,7 @@ class Detection:
     def callback(self, camera_info, data, camera_image):
         global CAMERA_MODEL, FIRST_TIME, TF_BUFFER, TF_LISTENER
 
+
         try:
             img = CV_BRIDGE.imgmsg_to_cv2(camera_image, 'bgr8')
         except CvBridgeError as e:
@@ -93,8 +94,10 @@ class Detection:
         #FIlter points
         inrange = np.where((newPoints[:, 2] > -1) &
                            (newPoints[:, 2] < 3) &
-                           (np.abs(newPoints[:, 0]) < 3) &
-                           (np.abs(newPoints[:, 1]) < 3))
+                           (newPoints[:, 1] < 3) &
+                           (newPoints[:,1] > 0) &
+                           (np.abs(newPoints[:, 0]) < 3))
+                           #np.logical_or(np.greater(np.abs(newPoints[:,0]),0), np.greater(np.abs(newPoints[:,1]),,0)))
         max_intensity = np.max(newPoints[:, 3])
         newPoints = newPoints[inrange[0]]
         

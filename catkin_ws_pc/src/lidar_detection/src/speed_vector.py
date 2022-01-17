@@ -65,7 +65,6 @@ def callback(data):
     	print(b)
     	#print(speed_vector_calcul[i*3+1])
     	if b<2 and b>0 and abs(data_list[i*3+1])< abs(data_last[i*3+1]):
-    		print("BIIIIIP")
     		pub_alert.publish(alert)
     		#print(i)
     		

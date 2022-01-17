@@ -165,7 +165,6 @@ include_directories(
 
 catkin_install_python(PROGRAMS
   src/lidar_detection.py
-  src/lidar_transformation.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <node pkg="lidar_detection" type="lidar_close.py" name="lidar_close" output="screen" />
+  <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="kf_tracker" output="screen" />
+  <node pkg="topic_tools" type="throttle" name="throttle" args= "messages /ccs 2 /ccs_lowRate" output="screen" />
+  <node pkg="lidar_detection" type="speed_vector.py" name="speed_vector" output="screen" />
+
+
+  
+
+
+
+  
+  
+  
+
+</launch>
+

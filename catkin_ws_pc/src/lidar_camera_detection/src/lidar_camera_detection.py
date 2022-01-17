@@ -27,7 +27,7 @@ CV_BRIDGE = CvBridge()
 class Detection:
     def __init__(self):
         self.pointCloud = None
-        self.pubAlerte = rospy.Publisher("/alerte", Int16, queue_size=5)
+        self.pubAlerte = rospy.Publisher("/alert", Int16, queue_size=1)
 
     def lidar_pc_callback(self, data):
         global pointCloudtest
@@ -60,16 +60,17 @@ class Detection:
                             fontColor,
                             thickness)
 
-                if (closest_point <= 1 and detection.results[0].id == 1):
+                if (closest_point is not None and closest_point <= 1 and detection.results[0].id == 1):
                     alerte = Int16()
                     alerte.data = 1
                     self.pubAlerte.publish(alerte)
 
-            # Publish the projected points image
-            try:
-                image_pub.publish(CV_BRIDGE.cv2_to_imgmsg(img, "bgr8"))
-            except CvBridgeError as e: 
-                rospy.logerr(e)
+
+        # Publish the projected points image
+        try:
+            image_pub.publish(CV_BRIDGE.cv2_to_imgmsg(img, "bgr8"))
+        except CvBridgeError as e: 
+            rospy.logerr(e)
 
 
     
@@ -84,10 +85,10 @@ def main():
     data_detection_sub = message_filters.Subscriber(data_detection, Detection2DArray)
 
 
-    image_pub = rospy.Publisher("/usb_cam/cam_with_dist", Image, queue_size=5)
+    image_pub = rospy.Publisher("/usb_cam/cam_with_dist", Image, queue_size=1)
 
     ats =  message_filters.ApproximateTimeSynchronizer(
-            [img_detection_sub,data_detection_sub], queue_size=1, slop = 0.1)
+            [img_detection_sub,data_detection_sub], queue_size=1, slop = 10)
 
     ats.registerCallback(detection.camera_detection_callback, image_pub)
 

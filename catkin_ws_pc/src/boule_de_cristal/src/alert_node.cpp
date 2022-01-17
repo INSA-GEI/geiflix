@@ -21,17 +21,10 @@ AlertNode::~AlertNode() {}
 
 void AlertNode::alertCb(const std_msgs::Int16& msg) {
   std::string path = ros::package::getPath("boule_de_cristal");
-  std::string sound = "/resources/banger.ogg";
+  std::string sound = "/resources/banger+instru.ogg";
   std::string cmd = "canberra-gtk-play -f ";
   std::string sound_cmd = cmd + path + sound;
   system(sound_cmd.c_str());
-
-  auto start = std::chrono::system_clock::now();
-  std::chrono::duration<double> elapsed_seconds = start - start;
-  while (elapsed_seconds.count() < 2) {
-    auto current_time = std::chrono::system_clock::now();
-    elapsed_seconds = current_time - start;
-  }
 }
 
 };  // namespace boule_de_cristal

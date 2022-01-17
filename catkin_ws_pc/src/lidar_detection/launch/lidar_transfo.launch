@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-
+  
+  
       <!-- Wire static transform from the world to velodyne frame -->
-    <node
-        pkg="tf2_ros"
-        type="static_transform_publisher"
-        name="world_velodyne_tf"
-        output="screen"
-        args="0.32833408 -0.21816423 -0.1898881 2.3332986725909266 -1.3488302760373065 -0.84978811695617 world velodyne" />
-
   <node
-    pkg="lidar_detection"
-    type="lidar_detection.py"
-    name="lidar_detection"
-    output="screen" />
+      pkg="tf2_ros"
+      type="static_transform_publisher"
+      name="world_velodyne_tf"
+      output="screen"
+      args="0.32833408 -0.21816423 -0.1898881 2.3332986725909266 -1.3488302760373065 -0.84978811695617 world velodyne" />
 
-  <node
-    pkg="lidar_detection"
-    type="lidar_close.py"
-    name="lidar_close"
-    output="screen" />
+  <node pkg="lidar_detection" type="lidar_detection.py" name="lidar_detection" output="screen" />
 
+  <node pkg="lidar_camera_detection" type="lidar_camera_detection.py" name="lidar_camera_detection" output="screen" />
 
-   <!-- <include file="$(find lidar_camera_detection)/launch/affichage_calibration.launch" /> -->
+  <node pkg="boule_de_cristal" type="boule_de_cristal" name="boule_de_cristal" output="screen" />
+
+  <node pkg="lidar_detection" type="lidar_close.py" name="lidar_close" output="screen" />
+
 
 </launch>
 
