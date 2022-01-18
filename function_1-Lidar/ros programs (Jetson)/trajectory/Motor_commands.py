@@ -6,26 +6,26 @@ from std_msgs.msg import String
 import numpy as np
 import socket
 
-HOST= '192.168.1.10'  #adresse de la jetson
-PORT= 1024  #Port (les non-privileged sont >1023
-
+#Publication ordre à donner à la voiture sur le topic Motor_commands
 pub = rospy.Publisher("Motor_commands", String, queue_size=10)
 
+#Initialisation
 gate_detected = False
 
-#c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45 = False
-
+#Recuperation et traitement des donnees provenant du topic Objects2m
 def callback2(data):
+
     global gate_detected, c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45
 
-
+    #recuperation des donnees du topic
     obj0 = data.Detect2m_obj0
     obj1 = data.Detect2m_obj1
     obj2 = data.Detect2m_obj2
     obj3 = data.Detect2m_obj3
     obj4 = data.Detect2m_obj4
     obj5 = data.Detect2m_obj5
-    
+
+    #conditions 2 objets detectes
     c01 = obj0 and obj1
     c02 = obj0 and obj2
     c03 = obj0 and obj3
@@ -42,7 +42,7 @@ def callback2(data):
     c35 = obj3 and obj5
     c45 = obj4 and obj5
     
-
+    #si 1 des conditions valides, portique detecte
     if c01 or c02 or c03 or c04 or c05 or c12 or c13 or c14 or c15 or c23 or c24 or c25 or c34 or c35 or c45 :
 
             gate_detected = True
@@ -52,13 +52,15 @@ def callback2(data):
             gate_detected = False
         
     
-
+#Recuperation et traitement des donnees provenant du topic XYobjects
 def callback3(data):
     global gate_detected, c01, c02, c03, c04, c05, c12, c13, c14, c15, c23, c24, c25, c34, c35, c45
-    
+
+    #Initialisation
     Pole1 = 0.0
     Pole2 = 0.0
 
+    #Si portique detecte, recuperer la position Y de chaque objet
     if gate_detected :
     
         if c01 :
@@ -135,21 +137,18 @@ def callback3(data):
         
             Pole1 = data.Yobject4
             Pole2 = data.Yobject5
-            
+
+    #Si la position Y est positive et depasse un certain seuil pour les deux objets, alors on a traverse le portique :
+    #envoi de la commande stop sinon avancer
     if Pole1 >= 0.5 and Pole2 >= 0.5 :
-
-	Command = b'stop'
-	    
         pub.publish("stop")
-        
     else :
-    
-        Command = b'avancer'
-
         pub.publish("avancer")
 
+    #affichage pour tests
     rospy.loginfo('Pole1Y: {}, Pole2Y: {}, gate_detected : {} '.format(Pole1, Pole2, gate_detected))
 
+#Initialisation du node et souscription aux topics Objects2m et XYobjects
 def main():
 
     rospy.init_node('Motor_commands')

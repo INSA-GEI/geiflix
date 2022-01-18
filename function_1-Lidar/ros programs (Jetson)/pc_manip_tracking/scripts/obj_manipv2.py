@@ -3,100 +3,81 @@
 import rospy
 from sensor_msgs import point_cloud2 as pc2
 from sensor_msgs.msg import PointCloud2, PointField
-from std_msgs.msg import Float32
+from pc_manip_tracking.msg import XYobjects
 import ros_numpy
-
-
 import numpy as np
 
-pub01 = rospy.Publisher("Xobject0", Float32, queue_size=10)
-pub02 = rospy.Publisher("Yobject0", Float32, queue_size=10)
+#publication du topic XYobjects
+pub = rospy.Publisher("XYobjects", XYobjects, queue_size=10)
 
-pub11 = rospy.Publisher("Xobject1", Float32, queue_size=10)
-pub12 = rospy.Publisher("Yobject1", Float32, queue_size=10)
+#Initialisation
+msg = XYobjects()
 
-pub21 = rospy.Publisher("Xobject2", Float32, queue_size=10)
-pub22 = rospy.Publisher("Yobject2", Float32, queue_size=10)
-
-pub31 = rospy.Publisher("Xobject3", Float32, queue_size=10)
-pub32 = rospy.Publisher("Yobject3", Float32, queue_size=10)
-
-pub41 = rospy.Publisher("Xobject4", Float32, queue_size=10)
-pub42 = rospy.Publisher("Yobject4", Float32, queue_size=10)
-
-pub51 = rospy.Publisher("Xobject5", Float32, queue_size=10)
-pub52 = rospy.Publisher("Yobject5", Float32, queue_size=10)
-
+#Recuperation de la position XY objet 0
 def callback0(data):
 
-	global pub01, pub02
+	global pub, msg
 	for coordinates in pc2.read_points(data, field_names = ("x","y","z","intensity"), skip_nans=True):
 		x=coordinates[0]
 		y=coordinates[1]
-	data=x
-	pub01.publish(data)
-	data=y
-	pub02.publish(data)
+	msg.Xobject0 = x
+	msg.Yobject0 = y
 
+#Recuperation de la position XY objet 1
 def callback1(data):
 
-	global pub11, pub12
+	global pub, msg
 	for coordinates in pc2.read_points(data, field_names = ("x","y","z","intensity"), skip_nans=True):
 		x=coordinates[0]
 		y=coordinates[1]
-	data=x
-	pub11.publish(data)
-	data=y
-	pub12.publish(data)
+	msg.Xobject1 = x
+	msg.Yobject1 = y
 
+#Recuperation de la position XY objet 2
 def callback2(data):
 
-	global pub21, pub22
+	global pub, msg
 	for coordinates in pc2.read_points(data, field_names = ("x","y","z","intensity"), skip_nans=True):
 		x=coordinates[0]
 		y=coordinates[1]
-	data=x
-	pub21.publish(data)
-	data=y
-	pub22.publish(data)
+	msg.Xobject2 = x
+	msg.Yobject2 = y
 
+#Recuperation de la position XY objet 3
 def callback3(data):
 
-	global pub31, pub32
+	global pub, msg
 	for coordinates in pc2.read_points(data, field_names = ("x","y","z","intensity"), skip_nans=True):
 		x=coordinates[0]
 		y=coordinates[1]
-	data=x
-	pub31.publish(data)
-	data=y
-	pub32.publish(data)
+	msg.Xobject3 = x
+	msg.Yobject3 = y
 
+#Recuperation de la position XY objet 4
 def callback4(data):
 
-	global pub41, pub42
+	global pub, msg
 	for coordinates in pc2.read_points(data, field_names = ("x","y","z","intensity"), skip_nans=True):
 		x=coordinates[0]
 		y=coordinates[1]
-	data=x
-	pub41.publish(data)
-	data=y
-	pub42.publish(data)
+	msg.Xobject4 = x
+	msg.Yobject4 = y
 
+#Recuperation de la position XY objet 5 et publication sur le topic XYobjects
 def callback5(data):
 
-	global pub51, pub52
+	global pub, msg
 	for coordinates in pc2.read_points(data, field_names = ("x","y","z","intensity"), skip_nans=True):
 		x=coordinates[0]
 		y=coordinates[1]
-	data=x
-	pub51.publish(data)
-	data=y
-	pub52.publish(data)
+	msg.Xobject5 = x
+	msg.Yobject5 = y
+	pub.publish(msg)
 
-
+#Initialisation du node et souscription a tous les topics liees aux objets du tracking
 def main():
 
-	rospy.init_node('Processing')
+	rospy.init_node('XYobjects_processing')
 	rospy.Subscriber("cluster_0", PointCloud2, callback0)
 	rospy.Subscriber("cluster_1", PointCloud2, callback1)
 	rospy.Subscriber("cluster_2", PointCloud2, callback2)

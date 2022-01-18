@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 
 import rospy
-from trajectory_calculation.msg import XYobjects, objects2m
+from pc_manip_tracking.msg import XYobjects, objects2m
 from math import *
 import ros_numpy
 
 
 import numpy as np
 
+#Publication du topic Objects2m
 pub = rospy.Publisher("Objects2m", objects2m, queue_size=10)
 
+#Initialsation
 msg = objects2m()
 
+#Detection a 2m de chaque objet
 def callback(data):
-
 	global pub, msg
+
+	#Recuperation des donnees du topic XYobjects
 	xobject0=data.Xobject0
 	yobject0=data.Yobject0
 
@@ -78,7 +82,7 @@ def callback(data):
 	pub.publish(msg)
 
 
-
+#Initialisation du node et souscription a XYobjects
 def main():
 
 	rospy.init_node('Detection_2_metres')
