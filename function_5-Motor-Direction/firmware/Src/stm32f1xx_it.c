@@ -48,7 +48,7 @@ extern TIM_HandleTypeDef htim4;
 extern int UPDATE_CMD_FLAG ;
 extern int SEND_CAN;
 extern int CHANGE_TO_STOP;
-
+extern int TEST_POS;
 /******************************************************************************/
 /*            Cortex-M3 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -88,6 +88,7 @@ void SysTick_Handler(void)
 	static int cmpt_cmd = 0;
 	static int cmpt_can = 0;
 	static int cmpt_stop = 0;
+	static int cmpt_pos = 0;
   /* USER CODE END SysTick_IRQn 0 */
 	
   HAL_IncTick();
@@ -96,6 +97,7 @@ void SysTick_Handler(void)
 	cmpt_cmd ++;
 	cmpt_can ++;
 	cmpt_stop ++;
+	cmpt_pos ++;
 	if (cmpt_cmd == PERIOD_UPDATE_CMD){
 		UPDATE_CMD_FLAG = 1;
 		cmpt_cmd = 0;
@@ -107,6 +109,10 @@ void SysTick_Handler(void)
 	if (cmpt_stop == PERIODE_STOP){
 		CHANGE_TO_STOP = 1;
 		cmpt_stop = 0;
+	}
+	if (cmpt_stop == PERIODE_TESTPOS){
+		TEST_POS = 1;
+		cmpt_pos = 0;
 	}
   /* USER CODE END SysTick_IRQn 1 */
 }
