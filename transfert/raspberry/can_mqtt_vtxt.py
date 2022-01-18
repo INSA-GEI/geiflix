@@ -17,15 +17,17 @@ memory_manu=None
 arret_urgence=False
 compteur_lidar=0
 wrong_gate=False
-bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
+bus = can.interface.Bus(channel='can0', bustype='socketcan_native') #activate the CAN bus
 
-# on s'inscrit à la topic "test/message"
+# we subscribe to the topic "test/message"
 def on_connect(client, userdata,flags, rc):
     client.subscribe("test/message")
 '''
-on récupère l'info envoyée par le publisher (GUI)
- fonction can message: le Id pour le mode SSC
-data se compose de [speed mode,steer mode ]'''
+verify the info sent by the GUI then send back the command via the CAN bus
+ ID :SSC mode
+data is composed from [speed mode,steer mode ]
+
+'''
 
 def on_message(client, userdata, msg):
     global compteur
@@ -57,7 +59,7 @@ def on_message(client, userdata, msg):
 
     if memory_manu and not(arret_urgence):
         print("in Manu")
-        if msg.payload.decode() == "avancer":
+        if msg.payload.decode() == "avancer":                   
             msg = can.Message(arbitration_id=0x020, data=[0x4B,0x32], extended_id=False)
             bus.send(msg)
         elif msg.payload.decode() == "reculer":
@@ -134,9 +136,9 @@ def on_message(client, userdata, msg):
 
 
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message #
-client.connect("192.168.0.250",1883,60)
-client.loop_forever()
+client = mqtt.Client()                    #create a mqtt client object
+client.on_connect = on_connect            #connect to the broker
+client.on_message = on_message            # attach function to callback
+client.connect("192.168.0.250",1883,60)   # connect with the address of the publisher
+client.loop_forever()                     # the program run indefinitely
 
