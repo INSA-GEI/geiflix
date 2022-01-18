@@ -1,0 +1,16 @@
+!SESSION 2021-11-12 15:55:57.178 -----------------------------------------------
+eclipse.buildId=Version 1.7.0
+java.version=11.0.10
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=fr_FR
+Framework arguments:  D:\Travail\INSA\Travail\5A\Projet\geiflix\function_5-Motor-Direction\firmware\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 D:\Travail\INSA\Travail\5A\Projet\geiflix\function_5-Motor-Direction\firmware\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2021-11-12 15:56:16.647
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2021-11-12 15:56:16.689
+!MESSAGE Log4j initialized with config file D:\Travail\INSA\Travail\5A\Projet\geiflix\function_5-Motor-Direction\firmware\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-11-12 15:56:23.231
+!MESSAGE Started RMI Server, listening on port 41337

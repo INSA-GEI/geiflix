@@ -10,14 +10,17 @@
 #include <QSlider>
 
 
+
 class mafenetre : public QWidget
 {
     Q_OBJECT
 
 public:
     mafenetre();
+    int passage_a_1;
 
 public slots:
+
     void envoimessRasPi_AV(void);
     void envoimessRasPi_AR(void);
     void envoimessRasPi_D(void);
@@ -37,6 +40,7 @@ public slots:
     void envoimessRasPi_produit2(void);
     void envoimessRasPi_produit3(void);
     void envoimessRasPi_produit4(void);
+
 
 
 
@@ -61,10 +65,13 @@ private :
     QPushButton *produit4;
 
 
+
+
     QLabel *label1;
     QLabel *label2;
     QLabel *label3;
-
+    QLabel *label4;
+    QLabel *label5;
 
 
 
@@ -86,7 +93,6 @@ private :
     QProcess *m_process_produit2;
     QProcess *m_process_produit3;
     QProcess *m_process_produit4;
-
 
     //QSlider *m_slider;
 };
