@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.0)
+project ( JetsonFollow )
+find_package( OpenCV REQUIRED)
+find_package(PkgConfig)
+find_package(Threads REQUIRED)
+if(THREADS_HAVE_PTHREAD_ARG)
+	target_compile_options(JetsonFollow PUBLIC "-pthread")
+endif()
+pkg_check_modules(RPLID librplidar_sdk REQUIRED)
+
+#set(RPlidar_DIR "./")
+#find_package( RPlidar REQUIRED)
+
+add_executable( JetsonFollow JetsonFollow.cpp)
+
+target_link_libraries( JetsonFollow ${OpenCV_LIBS})
+target_link_libraries( JetsonFollow ${RPLID_LIBRARIES})
+if(CMAKE_THREAD_LIBS_INIT)
+	target_link_libraries( JetsonFollow "${CMAKE_THREAD_LIBS_INIT}")
+endif()
+#target_link_libraries( JetsonFollow PRIVATE ${OpenCV_LIBS} RPLidar)
