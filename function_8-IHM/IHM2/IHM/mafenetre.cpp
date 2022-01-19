@@ -9,7 +9,7 @@ mafenetre::mafenetre() : QWidget()
     setFixedSize(750, 550);
 
 
-    // Construction du bouton
+    // Construction des boutons
     m_bouton_AV = new QPushButton("", this);
     m_bouton_AR = new QPushButton("", this);
     m_bouton_D = new QPushButton("", this);
@@ -66,7 +66,7 @@ mafenetre::mafenetre() : QWidget()
 
 
 
-
+    //placement des boutons
     m_bouton_AV->setFont(QFont("Comic Sans MS", 14));
     m_bouton_AV->setCursor(Qt::PointingHandCursor);
     m_bouton_AV->move(175, 140);
@@ -136,7 +136,7 @@ mafenetre::mafenetre() : QWidget()
 
 
 
-
+    // création du signal pour le bouton "clique"
     QObject::connect(m_bouton_AV, SIGNAL(clicked()), this, SLOT(envoimessRasPi_AV()));
     QObject::connect(m_bouton_AR, SIGNAL(clicked()), this, SLOT(envoimessRasPi_AR()));
     QObject::connect(m_bouton_D, SIGNAL(clicked()), this, SLOT(envoimessRasPi_D()));
@@ -156,7 +156,7 @@ mafenetre::mafenetre() : QWidget()
     QObject::connect(produit3, SIGNAL(clicked()), this, SLOT(envoimessRasPi_produit3()));
     QObject::connect(produit4, SIGNAL(clicked()), this, SLOT(envoimessRasPi_produit4()));
 
-
+    //creation des différents titres
     label1 = new QLabel("Cargate's GUI", this); //créé le Label
     label1->setStyleSheet("font: 25pt; font-weight: bold; color: red");
     label1->move(80,40);
@@ -186,13 +186,13 @@ mafenetre::mafenetre() : QWidget()
 
 
 
-
+//creation des fonctions pour envoyer a la rasberry avec l'adresse ip
 void mafenetre::envoimessRasPi_AV()
 {
     std::cout<<"Avant"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "avancer";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "avancer";
     m_process_AV->execute(prog, arg);
 }
 
@@ -201,7 +201,7 @@ void mafenetre::envoimessRasPi_AR()
     std::cout<<"Arriere"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "reculer";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "reculer";
     m_process_AR->execute(prog, arg);
 }
 
@@ -210,7 +210,7 @@ void mafenetre::envoimessRasPi_D()
     std::cout<<"Droite"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "droite";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "droite";
     m_process_D->execute(prog, arg);
 }
 
@@ -219,7 +219,7 @@ void mafenetre::envoimessRasPi_G()
     std::cout<<"Gauche"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "gauche";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "gauche";
     m_process_G->execute(prog, arg);
 }
 
@@ -228,7 +228,7 @@ void mafenetre::envoimessRasPi_AVG()
     std::cout<<"Avant Gauche"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "avancer_gauche";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "avancer_gauche";
     m_process_AV->execute(prog, arg);
 }
 
@@ -237,7 +237,7 @@ void mafenetre::envoimessRasPi_AVD()
     std::cout<<"Avant Droite"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "avancer_droite";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "avancer_droite";
     m_process_AR->execute(prog, arg);
 }
 
@@ -246,7 +246,7 @@ void mafenetre::envoimessRasPi_ARG()
     std::cout<<"Arriere Gauche"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "reculer_gauche";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "reculer_gauche";
     m_process_D->execute(prog, arg);
 }
 
@@ -255,7 +255,7 @@ void mafenetre::envoimessRasPi_ARD()
     std::cout<<"Arriere Droite"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "reculer_droite";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "reculer_droite";
     m_process_G->execute(prog, arg);
 }
 
@@ -264,7 +264,7 @@ void mafenetre::envoimessRasPi_AU()
     std::cout<<"Arret Urgence"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "Arret_Urgence";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "Arret_Urgence";
     m_process_AV->execute(prog, arg);
 }
 
@@ -273,7 +273,7 @@ void mafenetre::envoimessRasPi_MANU()
     std::cout<<"MANU"<<endl;
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "MANU";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "MANU";
     m_process_MANU->execute(prog, arg);
     this->passage_a_1=0;
 }
@@ -288,7 +288,7 @@ void mafenetre::envoimessRasPi_AUTO()
             std::cout<<"AUTO"<<endl;
             QString prog = "mosquitto_pub";
             QStringList arg;
-            arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "AUTO";
+            arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "AUTO";
             m_process_AUTO->execute(prog, arg);
         }
 
@@ -297,12 +297,12 @@ void mafenetre::envoimessRasPi_AUTO()
 
 }
 
-
+// choix des produits pour plustard
 void mafenetre::envoimessRasPi_produit1()
 {
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "10";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "10";
     m_process_AUTO->execute(prog, arg);
 }
 
@@ -310,7 +310,7 @@ void mafenetre::envoimessRasPi_produit2()
 {
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "20";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "20";
     m_process_AUTO->execute(prog, arg);
 }
 
@@ -318,7 +318,7 @@ void mafenetre::envoimessRasPi_produit3()
 {
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "25";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "25";
     m_process_AUTO->execute(prog, arg);
 }
 
@@ -326,7 +326,7 @@ void mafenetre::envoimessRasPi_produit4()
 {
     QString prog = "mosquitto_pub";
     QStringList arg;
-    arg << "-h" << "192.168.0.82" << "-t" << "test/message" << "-m" << "30";
+    arg << "-h" << "192.168.0.250" << "-t" << "test/message" << "-m" << "30";
     m_process_AUTO->execute(prog, arg);
 }
 
