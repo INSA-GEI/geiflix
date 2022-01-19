@@ -2,7 +2,7 @@
 
 ![Boule de cristal](https://github.com/INSA-GEI/geiflix/blob/2022_diskdastardly/documentation/Boule_de_cristal.jpg)
 
-## GeiBike Project
+## I. GeiBike Project
 
 The GeiBike project is a project carried out by students at [INSA Toulouse](http://www.insa-toulouse.fr/fr/index.html). This project consists in developing the software of a autonomous vehicule, based on a 3-wheels bike, in order to carry out different missions. Several projects are exposed on the [official website](https://sites.google.com/site/projetsecinsa/).
 
@@ -28,9 +28,9 @@ The projects are (or were) surpervised by:
 * CHANTHERY Elodie
 * AURIOL Guillaume
 
-## Quick User Guide
+## II. Quick User Guide
 
-### Content
+### 1. Content
 In this repository, all our work is located in the [catkin_ws_jetson](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_jetson) and [catkin_ws_pc](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_pc) folders. 
 
 Following each folder branch, there is an *src* folder in which is located the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR) with a GPU (Jetson NANO) and a PC, ROS has been of great help to make them all communicate together.
@@ -45,18 +45,21 @@ In "catkin_ws_pc", you will find the source code that is run directly on the PC.
 * *src/lidar_camera_calibration*: for running callibration of the LIDAR with the camera, i.e. make sure they "see" the same scene.
 * *src/lidar_camera_detection*: for the display of the LIDAR distances on the camera images.
 * *src/lidar_detection*: for the transformation in 2D of LIDAR points.
+* *src/multiple-object-tracking-lidar*: 
 * *src/rslidar_sdk*: LIDAR SDK, the base code to start the LIDAR and receive its data.
 
-### Installation
+### 2. Installation
 
-#### Prerequisites
+#### 2.1. Prerequisites
 
 This project must be run on either the Linux Ubuntu 18.04 or 20.04. 
 
 You will also need to install the corresponding version of ROS: ros melodic or noetic.
-You can follow this tutorial to install ros noetic on Ubuntu 20.04 : [How to install ros noetic on ubuntu 20.04](https://linoxide.com/how-to-install-ros-noetic-on-ubuntu-20-04/).
+* You can follow this tutorial to install ros noetic on Ubuntu 20.04 : [How to install ros noetic on ubuntu 20.04](https://linoxide.com/how-to-install-ros-noetic-on-ubuntu-20-04/).
+* You can follow this tutorial to install ros melodic on Ubuntyu 18.04 : [Ubuntu install of ros melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
 
-#### Preliminary installations 
+
+#### 2.2. Preliminary installations 
 
 First step, clone this repository and go to the branch *2022_diskdastardly*.
 
@@ -70,7 +73,7 @@ You also need to install two external git repositories we reused for our project
 
 Once this is done, you are ready to run the project !
 
-#### Launch the Jetson:
+#### 2.3. Launch the Jetson:
 
 Go to the Jetson catkin workspace
 
@@ -85,7 +88,7 @@ Then you need to launch the *.launch* file in the *camera* folder
     roslaunch camera usb_cam-cam_tricycle.launch
 
 
-#### Launch the PC source code
+#### 2.4. Launch the PC source code
 
 Go to the PC catkin workspace
 
@@ -95,17 +98,30 @@ Do not forget to compile before running and every time a source code has been mo
 
     catkin_make
     
-Then you will need to launch the LIDAR SDK to start the LIDAR
+Then you can start the LIDAR by launching the LIDAR SDK
 
     roslaunch rslidar_sdk start.launch
     
-Then the lidar_detection to use the object detection in another command window
+Then you have the choice to either start recognising objects and display their distance from the sensors, or track objects and predict their trajectory. After this, you can launch the GUI if it did not launch by itself.
+
+##### 2.4.1. Object detection, recognition and distance calculus  
+    
+To start recognising objects and display their distance, you may enter this command in another command window
 
     roslaunch lidar_detection lidar_transfo.launch
+    
+##### 2.4.2. Trajectory prediction
 
-And also start the GUI in yet another command window
+To start tracking objects and predict their trajectory, you may enter this command in another command window
+
+    roslaunch lidar_detection lidar_trajectory.launch
+    
+##### 2.4.3. Start the Graphical User Interface (GUI)
+
+To start the GUI if it did not launch automatically, you can launch in another command window
 
     rosrun boule_de_cristal boule_de_cristal
+    
     
 Now everything should be working fine ! 
 
