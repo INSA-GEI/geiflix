@@ -1,6 +1,6 @@
 # 'BOULE DE CRISTAL' PROJECT
 
-![Boule de cristal](https://github.com/INSA-GEI/geiflix/blob/2022_diskdastardly/documentation/Boule_de_cristal.jpg)
+![Boule de cristal](https://github.com/INSA-GEI/geiflix/blob/2022_diskdastardly/documentation/Images/Boule_de_cristal.jpg)
 
 ## I. GeiBike Project
 
