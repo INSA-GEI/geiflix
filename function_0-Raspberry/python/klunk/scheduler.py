@@ -110,7 +110,7 @@ class Scheduler():
                 # waiting for instructions safely
 
                 # Switch mode
-                if not self.isAzone() and self.xbox.A():
+                if not zone.isAzone(self.car) and self.xbox.A():
                     print("STOP -> AUTO")
                     self.car.mode = self.car.AUTO
                     self.stop_avoiding()
@@ -155,7 +155,7 @@ class Scheduler():
             #print("A", ZoneA, "B", ZoneB, "C", ZoneC, "K", ZoneK, "L", ZoneL, "M", ZoneM, "N", ZoneN, \
             #    "S", ZoneS, "T", ZoneT, "U", ZoneU, "V", ZoneV, "X", ZoneX, "Y", ZoneY, "Z", ZoneZ)
             #print(self.car.US)
-            #print("#########################")
+            #print("#########################", len(self.car.lidar.obstacles), "lidar obstacles")
             #for obstacle in self.car.lidar.obstacles:
             #    print(f"{int(obstacle[0]):03} {int(obstacle[1]):03} {int(obstacle[2]):03}")
             #for i in range(10 - len(self.car.lidar.obstacles)):

@@ -1,0 +1,32 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <!-- meta http-equiv="refresh" content="1"-->
+    <title>Klunk</title>
+</head>
+
+<body>
+    <h1 style="font-size: 10em; text-align: center;">KLUNK CAR</h1>
+    <h2 style="font-size:  8em; text-align: center;">Current mode:</h1>
+    <h3 style='font-family: monospace; font-size: 10em; text-align: center;'>
+        <span id="mode" style="border: 1rem solid; border-radius: 20%;">loading...</span>
+    </h3>
+    <img src="autonomous-car.png" style="display: block; margin: auto; width: 80%;" />
+    <script>
+        let mode = document.getElementById('mode');
+
+        const request = new Request('mode.txt');
+
+        function periodic() {
+            fetch(request).then(function(response) {
+                    response.text().then(function(fetchedText) {
+                        mode.innerText = fetchedText;
+                    });
+                });
+        };
+        setInterval(periodic, 100);
+    </script>
+</body>
+</html>

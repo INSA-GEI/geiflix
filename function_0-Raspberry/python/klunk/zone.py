@@ -78,7 +78,7 @@ def isVzone(car):
 
 def isXzone(car):
     return (car.US.front_center_obstacle(80) and not car.US.front_center_obstacle(30)) \
-        or car.lidar.searchObstacle(-15, 15, 80, 130)
+        or car.lidar.searchObstacle(-15, 15, 80, 150)
 
 def isYzone(car):
     return (car.US.front_left_obstacle(70) and not car.US.front_left_obstacle(30)) \
