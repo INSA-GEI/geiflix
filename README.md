@@ -31,9 +31,9 @@ The projects are (or were) surpervised by:
 ## II. Quick User Guide
 
 ### 1. Content
-In this repository, all our work is located in the [catkin_ws_jetson](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_jetson) and [catkin_ws_pc](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_pc) folders. 
+In this repository, all our work is located in the [catkin_ws_jetson](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_jetson) and [catkin_ws_pc](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/catkin_ws_pc) folders. You can find the documentation for our project in the folder [documentation](https://github.com/INSA-GEI/geiflix/tree/2022_diskdastardly/documentation). It contains the slides for each sprint review and also the poster to summarize our work.
 
-Following each folder branch, there is an *src* folder in which is located the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR) with a GPU (Jetson NANO) and a PC, ROS has been of great help to make them all communicate together.
+Following each work folder branch, there is an *src* folder in which is located the source code for our project. There is also a file *.catkin_workspace* that is used for setting up a catkin workspace necessary to run a project using ROS (Robot Operating System). ROS is a middleware that allows components of different architectures to automatically communicate between them. Since we are using different sensors (camera & LIDAR) with a GPU (Jetson NANO) and a PC, ROS has been of great help to make them all communicate together.
 
 In **"catkin_ws_jetson/src"**, you will find the source code that is run on the Jetson NANO, which is a Graphical Processing Unit (GPU) we used for the project. The Jetson is used for the camera and the recognition using AI (Artificial Intelligence). 
 
