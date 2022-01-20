@@ -1,7 +1,7 @@
 # CarGate Project
 
 CarGate is an autonomous vehicle intended to help you in transporting goods throughout your warehouse.
-The car has been designed and created by the Yankee Doodle Pigeon Group. The name of our company was inspired by the cartoon Dastardly & Muttley in Their Flying Machines, our team took the name of the patriotic American homing pigeon (Yankee Doodle Pigeon). Our team is composed of:
+The car has been designed and created by the Yankee Doodle Pigeon Group. Our team is composed of:
 - BURTON Nidishlall (burton@insa-toulouse.fr)
 - CHOUIYA Asma  (chouiya@insa-toulouse.fr)
 - EL HACHIMI Asmae  (elhachim@insa-toulouse.fr)
