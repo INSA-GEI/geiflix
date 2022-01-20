@@ -1,0 +1,5 @@
+can_mqtt_vtxt.py : main program, launched after jetson.py (jetson card) and after raspberry_py_vtxt.py (pi card).
+
+- switch between automatic and manual modes according to MQTT command
+- auto mode : correction and lidar mode
+- manual mode : manual commands available on our IHM
