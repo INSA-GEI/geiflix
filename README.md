@@ -13,7 +13,7 @@ The projects are (or were) surpervised by:
 - Pierre-Emmanuel Hladik (pehladik@insa-toulouse.fr)
 - Gwendoline Le Corre (lecorre@insa-toulouse.fr)
 
-# Features 
+# Features:
 - Gate Detection System
 Using a QR-Code Detection Algorithm, the car is able to differentiate between gates. The gate is represented by a pair of QR-Codes. If the pair detected matches the instruction given previously, the program will only focus on that pair.
 
@@ -26,7 +26,7 @@ In any case of emergency, a graphical unit interface (GUI) has been built to ove
 This GUI is also used to instruct the car about which aisle it should be looking for.
 
 
-# Requirements
+# Requirements:
 - Linux
 - Any C++ compiler
 - Python3 (OpenCv)
@@ -35,7 +35,11 @@ This GUI is also used to instruct the car about which aisle it should be looking
 - Ethernet
 - CAN bus
 
-
+# Quick user guide:
+- To install openCv python3 on the Jetson card: 
+  "pip3 install opencv-python==4.5.3.56" 
+  "python3 -m pip install open-cv-contrib-python"
+- To install Numpy python3 on the Jetson card: "pip3 install numpy==1.19.4"
 
 
 
