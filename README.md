@@ -10,8 +10,8 @@ The car has been designed and created by the Yankee Doodle Pigeon Group. The nam
 - RAMIARA Maxime (ramiara@insa-toulouse.fr)
 
 The projects are (or were) surpervised by:
-- Pierre-Emmanuel Hladik 
-- Gwendoline Le Corre
+- Pierre-Emmanuel Hladik (pehladik@insa-toulouse.fr)
+- Gwendoline Le Corre (lecorre@insa-toulouse.fr)
 
 # Features 
 - Gate Detection System
