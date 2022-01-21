@@ -5,23 +5,26 @@ import os
 import RPi.GPIO as GPIO
 from receiver import Init_Pican
 
+#This function has one parameter named bus (CAN bus). This function get from a
+#file the desired coordinates and send it via CAN frames for the predefined path.
 def Path_Init(bus):
-    path=[]
-    path_point = 0
-    value = 0
+    path=[] #List for the coordinates of the predefined path.
+    path_point = 0 #Counter for the number of lines on the considered file.
+    value = 0 #Variable to store a list of coordinates.
     with open("path_coord.txt", "r") as data_file: #Opening of the file containing coordinates of the fire detected
+        #Verification that the file contains at least 5 lines.
         while 1:
             num_lines = sum(1 for line in data_file)
             if num_lines >= 5:
                 break
         data_file.close()
-            
+        
+        #Read the 5 coordinates in the current file and store it in a list.
         while len(path) < 5  and path_point < 5:
             file = open("path_coord.txt", "r")
             line = file.readline()
             while line:
-                print(line)
-                value = json.loads(line)
+                value = json.loads(line) #Convert a list from a file in real list (Here int list).
                 path.append(value)
                 path_point += 1
                 line = file.readline()
@@ -73,6 +76,7 @@ def Path_Init(bus):
         E_sec_lo = int(((path[0][1]-A_deg_lo)*60-A_min_lo)*60)
         E_sec_sec_lo = int((((path[0][1]-A_deg_lo)*60-A_min_lo)*60 - A_sec_lo)*60)
 
+        #Send the 5 coordinates via CAN frames.
         try:
             gps_coord_A = can.Message(arbitration_id=0x031,data=[A_deg_la,A_min_la,A_sec_la,A_sec_sec_la,A_deg_lo,A_min_lo,A_sec_lo,A_sec_sec_lo],extended_id=False)
             bus.send(gps_coord_A)        
@@ -108,33 +112,33 @@ def Path_Init(bus):
             os.system("sudo /sbin/ip link set can0 down")
             print('\n\rKeyboard interrupt: CAN down')
     
-                
+#This function reads in real time the file with the actual GPS coordinates. Then, an average is made with
+#3 coordinates of this file.
 def Gps_Read():
     counter = 0
-    alist = []
+    alist = [] #List to store the 3 coordinates.
+    #Verification to get 3 actual coordinates from the GPS coordinates file.
     while counter < 3:
         file = open("degrees_coord.txt", "r")
         line = file.readline()
-        value = json.loads(line)
+        value = json.loads(line) #Convert a list from a file in real list (Here int list).
         alist.append(value)
         counter =+ 1
         file.close()
-        timer.sleep(3)
+        timer.sleep(3) #Wainting 3 seconds.
     
-    average_la = (alist[0][0] + alist[1][0] + alist[2][0])/3
-    average_lo = (alist[0][1] + alist[1][1] + alist[2][1])/3
+    average_la = (alist[0][0] + alist[1][0] + alist[2][0])/3 #Average for latitude.
+    average_lo = (alist[0][1] + alist[1][1] + alist[2][1])/3 #Average for longitude.
     
     alist1 = [average_la, average_lo]
     f = open('fire_coord.txt', 'w')
-    simplejson.dump(alist1, f)
+    simplejson.dump(alist1, f) #Write the average of coordinates on a file.
     f.write("\n")
     f.close()
-    
-    return alist1
-        
-            
+                   
 if __name__ == "__main__":
 
+    #Constants concerning the motor control.
     MCM = 0x010
     MS = 0x100
     US1 = 0x000
@@ -165,16 +169,14 @@ if __name__ == "__main__":
         exit()
 
     lines = []
-    i = 0
-    gps_data = []
-    all_data = []
-
-    gps_coor = []
-    isPath = True
-    index = 0
-    mode = 1
+    i = 0 #Index for lines of the file containing the actual GPS coordinates.
+    gps_data = [] #Get the actual GPS data from the file.
+    all_data = [] #Store all the actual GPS data thanks to gps_data list.
+    gps_coor = [] #List containing the actual and current latitude and longitude.
+    index = 0 #Lock dor the mode 0 in order to get just one actual GPS coordniates.
+    mode = 1 #Mode of sending actual GPS coordinates via CAN frames. 0 for sending only one frame and 1 for sending all frames in real time.
     with open("./cutecom.log") as file_gps:
-        #time.sleep(10)
+        #Read in real time the actual GPS coordiantes file.
         while 1:
             where = file_gps.tell()
             line = file_gps.readline()
@@ -182,8 +184,8 @@ if __name__ == "__main__":
                     time.sleep(1)
                     file_gps.seek(where)
             else:
+                #Get the first actual coordinate.
                 if i==0:
-                    #lines.append(line)
                     data = line.split(",")
                     gps_data.append(data[2])
                     gps_data.append(data[3])
@@ -191,8 +193,8 @@ if __name__ == "__main__":
                     all_data.append(gps_data)
                     gps_data = []
                     
+                #Get at each 6 lines the actual coordinates.
                 elif i%6==0:
-                    #lines.append(line)
                     data = line.split(",")
                     gps_data.append(data[2])
                     gps_data.append(data[3])
@@ -201,42 +203,43 @@ if __name__ == "__main__":
                     
                     gps_coor.append(data[3].split("."))
                     gps_coor.append(data[5].split("."))
-                    #print(gps_coor)
                     
-                    #latitude
+                    #latitude in Degrees Minutes
                     lat_degres = gps_coor[0][0][0:2]
                     lat_min = gps_coor[0][0][2:]
                     lat_sec = gps_coor[0][1][0:5]
                     
-                    #longitude
+                    #longitude in Degrees Minutes
                     long_degres = gps_coor[1][0][0:3]
                     long_min = gps_coor[1][0][3:5]
                     long_sec = gps_coor[1][1][0:5]
                     
-                    #Values of latitude
+                    #Values of latitude in DMS (Degrees Minutes Seconds)
                     val0 = int(lat_degres)
                     val1 = int(lat_min)
                     val2 = int(int(lat_sec)*10**-5*60)
                     val3 = int((int(lat_sec)*10**-5*60 - val2)*100)
                     
-                    val_la_fire = val0 + val1/60 + (int(lat_sec)*10**-5*60)/3600
+                    #Values of latitude in Decimal Degrees
+                    val_la = val0 + val1/60 + (int(lat_sec)*10**-5*60)/3600
                     
-                    #Values of longitude
+                    #Values of longitude in DMS (Degrees Minutes Seconds)
                     val4 = int(long_degres)
                     val5 = int(long_min)
                     val6 = int(int(long_sec)*10**-5*60)
                     val7 = int((int(long_sec)*10**-5*60 - val6)*100)
                     
-                    val_lo_fire = val4 + val5/60 + (int(long_sec)*10**-5*60)/3600
+                    #Value of longitude in Decimal Degrees
+                    val_lo = val4 + val5/60 + (int(long_sec)*10**-5*60)/3600
                     
-                    alist = [val_la_fire, val_lo_fire]
+                    alist = [val_la, val_lo] #Store coordinates on a list.
                     f = open('degrees_coord.txt', 'w')
-                    simplejson.dump(alist, f)
+                    simplejson.dump(alist, f) #Write coordinates in Decimal Degrees format on the current file.
                     f.write("\n")
                     f.close()
             
+                    #In this mode only one actual GPS coordinate in DMS is sent via CAN frames.
                     if(mode == 0 and index == 0):            
-                    # Main loop
                         try:                  
                             gps_coord_RT = can.Message(arbitration_id=0x030,data=[val0,val1,val2,val3,val4,val5,val6,val7],extended_id=False)
                             bus.send(gps_coord_RT)        
@@ -251,7 +254,7 @@ if __name__ == "__main__":
                         time.sleep(1)
                         gps_coor = []
                         
-                        
+                    #In this mode the actual GPS coordinate in DMS are sent via CAN frames.
                     elif(mode == 1):
                         try:
                             gps_coord_RT = can.Message(arbitration_id=0x030,data=[val0,val1,val2,val3,val4,val5,val6,val7],extended_id=False)
@@ -269,4 +272,3 @@ if __name__ == "__main__":
                         gps_coor = []    
                     gps_data = [] 
                 i=i+1
-            #print(all_data)
