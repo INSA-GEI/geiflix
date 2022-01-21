@@ -88,7 +88,7 @@ Une fois le hotspot & DHCP configurés, on peut se connecter à la Pi en SSH. Po
 ```sh
 ssh pi@192.168.0.2
 ```
-On renseigne ensuite le mot de passe, et on la connexion est terminée, on accède au terminal distant.
+On renseigne ensuite le mot de passe, et quand la connexion est terminée, on accède au terminal distant.
 
 Si le DHCP & surtout le bail statique pour la Jetson ont été configurés sur `eth0`, on peut également se connecter en SSH sur la Jetson. On procède de la même façon que pour la Pi, en se connectant au hotspot et en utilisant la commande :
 ```sh
@@ -115,3 +115,37 @@ On peut ensuite redémarrer la Pi pour appliquer les changements :
 ```sh
 sudo reboot
 ```
+
+## Installations additionnelles
+
+Le serveur Python tournant sur la Pi a besoin de deux paquets Pythons pour fonctionner, qui nécessitent donc d'être installés.
+
+### `python-can`
+
+C'est le paquet qui fournit le support du bus CAN en Python, et les abstractions qui permettent de communiquer avec (par l'intermédiaire de la carte PiCAN).
+
+#### Installation
+
+```sh
+pip install python-can
+```
+
+#### Liens
+
+- [Page PyPI du paquet](https://pypi.org/project/python-can/),
+- [Documentation](https://python-can.readthedocs.io/en/master/index.html).
+
+### `simple-pid`
+
+C'est le paquet qui fournit l'implémentation en Python d'un PID.
+
+#### Installation
+
+```sh
+pip install simple-pid
+```
+
+#### Liens
+
+- [Page PyPI du paquet](https://pypi.org/project/simple-pid/),
+- [Documentation](https://simple-pid.readthedocs.io/en/latest/).
