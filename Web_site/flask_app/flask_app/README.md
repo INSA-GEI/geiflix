@@ -56,7 +56,7 @@ Run the folowing command on Linux OS to be sure that each file is really empty:
 ````
 $ > name_file.xx
 ````
-To run this project, install it locally:
+To run this project, install locally (In the Raspberry Pi):
 
 A virtual environment for Flask (not mandatory)
 
@@ -97,7 +97,7 @@ To launch the first server corresponding to the Website as such we need the foll
 $ php -S ip_address:port
 ```
 
-Bellow the command to launch the second server Flask for displaying the interactive map (After activating the virtual environment or not. It depends your configuration).
+Bellow the command to launch the server Flask for displaying the interactive map (After activating the virtual environment or not. It depends your configuration).
 
 ```
 $ python3 map_for_path.py
@@ -105,14 +105,14 @@ $ python3 map_for_path.py
 
 **Now enjoy by enter ip_adress:port/index.html in a browser to see the website!!!**
 
-You need to log in in order to enter in Control car tab, the 5 localization and after you can see the predefined path on the map. You can see also a red icon if a fire is detected. You can test by yourself directly by enttering a localization in the fire_coord.txt.
+You need to log in in order to enter in Control car tab, the 5 points of localizations and after you can see the predefined path on the map. You can also see a red icon if a fire is detected. You can test by yourself directly by enttering a localization in the fire_coord.txt.
 
-**Connect to the ip_adress:port corresponding to the Flask server to see the interactive map an enjoy yourself :D .**
+**Connect to the ip_address:port corresponding to the Flask server to see the interactive map an enjoy yourself :D .**
 
 ![image](https://user-images.githubusercontent.com/58248934/150618080-8f934941-b446-4047-9f1b-2ccdb23322ba.png)
 
 After all that, you can run CAN_Comm/parser_gps.py file to send CAN frames with the 5 entered points ans send in real time GPS coordinates via CAN frames too.
 
-More properly, youn should launch global.py (It is the main program connecting all files). In this program, you should call the appropriate method to use it directly.
+More properly, youn should launch global.py (It is the main program connecting all files). For example, in this program, you should call the appropriate method of parser_gps.py to initialize the predefined path via CAN frames.
 
-For a good simulation of all this you need to launch map_for_path.py, paths_gps.py and global.py (Localized in Machine_learning folder) in parallel. For instance, you can read the current Makefile.
+For a good simulation of all this you need to launch map_for_path.py, paths_gps.py and global.py (Localized in Machine_learning folder) in parallel. Of course, each of these program contain a main function executing code directly. For instance, you can read the current Makefile to see the structure of execution.
