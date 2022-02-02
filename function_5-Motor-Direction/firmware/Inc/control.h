@@ -115,12 +115,11 @@ int calculate_direction_command_with_GPS(double angleToGo);
 void direction_speed_management_with_GPS(double distance, double angleToGo);
 
 /* brief	Manage the movement between the car and the destination
- * param	double carLatitude, carLongitude			Actual GPS coordinates of the car
- * 			double carLatitudePrec, carLongitudePrec	Previous GPS coordinates of the car
- * 			double destLatitude, destLongitude			Actual GPS coordinates of the destination
+ * param	double carLatStart, carLongitudeStart	Previous GPS coordinates of the car
+ * 			double destLatitude, destLongitude		Actual GPS coordinates of the destination
  * retval 	None
  * */
-void movement_with_GPS(double carLat, double carLong, double carLatPrec, double carLongPrec, double destLat, double destLong);
+void movement_with_GPS(double carLatStart, double carLongStart, double destLat, double destLong);
 
 
 

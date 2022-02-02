@@ -77,7 +77,6 @@
 #define PERIOD_UPDATE_CMD 20 // Period in ms to update motor commands
 #define PERIOD_SEND_MES 100 // Period in ms to send data
 #define PERIODE_STOP 45000 //Period turn 360 --> ref = 60000
-#define PERIODE_TESTPOS 600 //Period change pos_ok 0 to 1 (Test CAN)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

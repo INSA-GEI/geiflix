@@ -14,7 +14,7 @@
 #include "steering.h"
 #include "wheels.h"
 #include "GPS.h"
-#include "can.h"
+
 #include "gpio.h"
 
 
@@ -22,7 +22,7 @@
 
 #define RUN_SPEED 	0.527			// speed in meter/s when speed set at RUN --> init = 0.527
 #define JOG_SPEED 	0.17 			// speed in meter/s when speed set at JOG --> init = 0.17
-#define RIGHT_ANGLE	8.55		 	// angle in degree traveled in 1 second when angle set at HARD_R - init 8.306741531
+#define RIGHT_ANGLE	8.306741531		// angle in degree traveled in 1 second when angle set at HARD_R
 #define LEFT_ANGLE	-8.366477998	// angle in degree traveled in 1 second when angle set a HARD_L
 
 
@@ -62,8 +62,10 @@ extern double carLongitude;
 extern double angleCar;
 extern int pos_OK;
 extern int isFire;
-extern uint8_t data[8];
 int CHANGE_TO_STOP=0;
+
+
+extern double cnt; // POUR DEBUG
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -228,9 +230,6 @@ double get_angle_to_go(double angleCar, double angleDest) {
 
 
 
-
-
-
 /* ********************************************************************************************/
 /* **********************	CAR MOVEMENT WITHOUT GPS CONNECTED		***************************/
 /* ********************************************************************************************/
@@ -286,11 +285,11 @@ double direction_speed_management_without_GPS(double distance, double angleToGo,
 
 		else if (angleToGo >= 10 && angleToGo < 180) {
 			angleCommand = HARD_R;
-			angleCarDiff = RIGHT_ANGLE;
+			angleCarDiff = 0;//RIGHT_ANGLE;
 		}
 		else if (angleToGo >= 180 || angleToGo < 350) {
 			angleCommand = HARD_L;
-			angleCarDiff = LEFT_ANGLE;
+			angleCarDiff = 0; //LEFT_ANGLE;
 		}
 		/* Apply commands to different motors and stop when we are close to the destination */
 		car_control(STOP, angleCommand);
@@ -323,16 +322,12 @@ double direction_speed_management_without_GPS(double distance, double angleToGo,
 		}
 
 		/* Apply commands to different motors and stop when we are close to the destination */
-		if (distance > 0.75) {
+		if (distance > 0.50) {
 			car_control(JOG, angleCommand);
-            data[0] = pos_OK; // ACK positon Ok
-            CAN_Send(data, CAN_ID_MS);
 		}
 		else {
 			car_control(STOP, STRAIGHT);
 			pos_OK = 1;
-            data[0] = pos_OK; // ACK positon Ok
-            CAN_Send(data, CAN_ID_MS);
 		}
 	}
 
@@ -427,9 +422,9 @@ int calculate_direction_command_with_GPS(double angleToGo) {
  * */
 void direction_speed_management_with_GPS(double distance, double angleToGo){
 
-	// calculate the angle command according to the angle beta
+	// calculate the angle command according to the angle angleToGo
 	int angleCommand = calculate_direction_command_with_GPS(angleToGo);
-	// if beta is between 270 and 90 --> the car is in the general right direction -> we manage the speed in normal functioning
+	// if angleToGo is between 270 and 90 --> the car is in the general right direction -> we manage the speed in normal functioning
 	if ((angleToGo <= 90 && angleToGo >= 0) || (angleToGo <= 360 && angleToGo >= 270)) {
 		if (distance > 2.0) {
 			car_control(RUN, angleCommand);
@@ -449,18 +444,19 @@ void direction_speed_management_with_GPS(double distance, double angleToGo){
 
 }
 
+
+
 /* brief	Manage the movement between the car and the destination
- * param	double carLatitude, carLongitude			Actual GPS coordinates of the car
- * 			double carLatitudePre, carLongitudePre		Previous GPS coordinates of the car
+ * param    double carLatitudeStart, carLongitudeStart	Previous GPS coordinates of the car
  * 			double destLatitude, destLongitude			Actual GPS coordinates of the destination
  * retval 	None
  * */
-void movement_with_GPS(double carLat, double carLong, double carLatPre, double carLongPre, double destLat, double destLong) {
+void movement_with_GPS(double carLatStart, double carLongStart, double destLat, double destLong) {
 
-	double distance = get_distance(carLat, carLong, destLat, destLong);
-	double angleDest = get_angle_dest(carLat, carLong, destLat, destLong);
+	double distance = get_distance(carLatitude, carLongitude, destLat, destLong);
+	double angleDest = get_angle_dest(carLatitude, carLongitude, destLat, destLong);
 
-	double angleCar = get_angle_car(carLatPre, carLongPre, carLat, carLong);
+	double angleCar = get_angle_car(carLatStart, carLongStart, carLatitude, carLongitude);
 
 	double angleToGo = get_angle_to_go(angleCar, angleDest);
 
@@ -487,27 +483,24 @@ void turn360(void) {
 	uint32_t currentTime = 0;
 	double diffTime = 0;
 
-	int cnt=0;
-	double angle360 = 0;
+	cnt=0;
+
 	startTime = HAL_GetTick();
 
-	while (angle360<360 && !isFire) {
-
+	/* 36O degrees turn during 45sec and stop if a fire is detected */
+	while (cnt < 45 && !isFire) {
 		currentTime = HAL_GetTick();
 		diffTime = currentTime - startTime;
 
 		if (diffTime/1000 > cnt) {
 			car_control(JOG, HARD_R);
-			if(angleCar > 300) angleCar = angleCar-360;
+			if(angleCar > 360) angleCar = angleCar-360;
 			angleCar = angleCar + RIGHT_ANGLE;
 			cnt++;
-			angle360 = angle360+ RIGHT_ANGLE;
 		}
 	}
-
+	/* when turn is done, stop the car and put the wheels straight */
 	car_control(STOP, STRAIGHT);
-
-
 }
 
 /* brief	If a fire is detected, wait until the user tell that the car can start again

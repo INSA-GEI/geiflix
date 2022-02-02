@@ -64,8 +64,8 @@
 
 #define MODE 4
 #define JOG_SPEED 0.17 	// speed in meter/s when speed set at JOG -- initial = 0.17
-#define nbDestCoordinates 5 // number of coordinates in the path
-#define nbCarCoordinates 10 // number of coordinates of the car received to calculate car position
+#define nbDestCoordinates 2 // number of coordinates in the path
+#define nbCarCoordinates 50 // number of coordinates of the car received to calculate car position
 
 /* USER CODE END Includes */
 
@@ -75,7 +75,7 @@
 /* Private variables ---------------------------------------------------------*/
 int UPDATE_CMD_FLAG = 1;
 int SEND_CAN = 1;
-int TEST_POS = 0;
+
 /* Tous ADC sur 12 bits pleine echelle 3.3V
  ADCBUF[0] mesure batterie
  ADCBUF[1] angle volant
@@ -136,6 +136,7 @@ double angleCar = 0;
 double carLatitudeStart ;
 double carLongitudeStart ;
 
+double carCoordinates[2];
 double listCarCoordinates[nbCarCoordinates][2];
 int indexCarCoordinates = 0;
 double meanCarLatitude = 0;
@@ -157,6 +158,8 @@ int pos_OK = 0;
 int isFire = 0;
 
 double dist =0;
+
+int cnt = 0; //  POUR DEBUG !!!!!
 
 extern CAN_HandleTypeDef hcan;
 
@@ -327,33 +330,25 @@ int main(void)
 			#elif (MODE == 4)
 
             /* set car start coordinates */
-			carLatitude = 43.570993;
-			carLongitude = 1.466886;
-			turn360();
+			carLatitude = 43.57102;
+			carLongitude = 1.46685;
+
             /* IF RASPBERRY CONNECTED : receive coordinates of the path and store it*/
-			/*
-			while (indexDestCoordinates < nbDestCoordinates) {
+			/*while (indexDestCoordinates < nbDestCoordinates) {
 				if (latDegDes != 0) {
 					listDestCoordinates[indexDestCoordinates][0] = dms2dd(latDegDes, latMinDes, latSecDes, latTenDes);
 					listDestCoordinates[indexDestCoordinates][1] = dms2dd(lonDegDes, lonMinDes, lonSecDes, lonTenDes);
 					indexDestCoordinates++;
 					dest_coordinates_to_zero();
 				}
-			}
-			*/
+			}*/
 
             /* IF RASPBERRY NOT CONNECTED : define the path of GPS locations and store it
              * !!! enter enough coordinates according to the variable "nbDestCoordinates" */
-			listDestCoordinates[0][0] = 43.570954;
-			listDestCoordinates[0][1] = 1.466946;
-			listDestCoordinates[1][0] = 43.570906;
-			listDestCoordinates[1][1] = 1.466985;
-			listDestCoordinates[2][0] = 43.570855;
-			listDestCoordinates[2][1] = 1.466998;
-			listDestCoordinates[3][0] = 43.570810;
-			listDestCoordinates[3][1] = 1.467083;
-			listDestCoordinates[4][0] = 43.570828;
-			listDestCoordinates[4][1] = 1.466980;
+			listDestCoordinates[0][0] = 43.57106;
+			listDestCoordinates[0][1] = 1.46683;
+			listDestCoordinates[1][0] = 43.57107;
+			listDestCoordinates[1][1] = 1.46679;
 
 			/* movement */
 			for (int i=0; i<nbDestCoordinates; i++) {
@@ -363,15 +358,10 @@ int main(void)
 				destLatitude = listDestCoordinates[i][0];
 				destLongitude = listDestCoordinates[i][1];
 				movement_without_GPS(carLatitudeStart, carLongitudeStart, destLatitude, destLongitude);
-				if (i == 0) HAL_Delay(5000);
-				else if (i==1) turn360();
+				if (isFire == 0) turn360(); // if RasPi not connected, isFire always to 0 so no fire detection
 				else waiting_while_not_fire();
 			}
 
-			#elif (MODE ==5)
-			if (TEST_POS){
-				pos_OK=1;
-			}
 
             /* autonomous movement to several destination with GPS connection + routine fire detection at each location */
 			#else
@@ -395,10 +385,10 @@ int main(void)
 						listCarCoordinates[indexCarCoordinates][0] = dms2dd(latDegPos, latMinPos, latSecPos, latTenPos);
 						listCarCoordinates[indexCarCoordinates][1] = dms2dd(lonDegPos, lonMinPos, lonSecPos, lonTenPos);
 						indexCarCoordinates++;
-						//HAL_Delay(100);
-						//car_coordinates_to_zero();
+						car_coordinates_to_zero();
 					}
 				}
+
 				/* calculate of the average to be more precise */
 				for (int i=0; i < nbCarCoordinates; i++) {
 					meanCarLatitude = meanCarLatitude + listCarCoordinates[i][0];
@@ -414,52 +404,58 @@ int main(void)
 				destLatitude = listDestCoordinates[i][0];
 				destLongitude = listDestCoordinates[i][1];
 				movement_without_GPS(carLatitudeStart, carLongitudeStart, destLatitude, destLongitude);
-				if (i == 0) HAL_delay(5);
-				else if (i==1) turn360();
+				if (isFire == 0) turn360();
 				else waiting_while_not_fire();
-
-				//if(isFire == 1) car_control(50,50);
 			}
 
-			/*destLongitude = 42.888414;
-			destLatitude = 2.198709;
+			/*
 
-			if (latDegPos != 0.0) {
-				if (cnt > 1000) {
-					car_coordinates_to_zero();
-					cnt = 0;
-					car_control(50,50);
+				if (indexCarCoordinates <= nbCarCoordinates) {
+					if (latDegPos != 0) {
+						listCarCoordinates[indexCarCoordinates][0] = dms2dd(latDegPos, latMinPos, latSecPos, latTenPos);
+						listCarCoordinates[indexCarCoordinates][1] = dms2dd(lonDegPos, lonMinPos, lonSecPos, lonTenPos);
+						indexCarCoordinates++;
+						car_coordinates_to_zero();
+					}
+				}
+				else if (indexCarCoordinates == (nbCarCoordinates + 1) ) {
+					for (int i=0; i < nbCarCoordinates; i++) {
+						meanCarLatitude = meanCarLatitude + listCarCoordinates[i][0];
+						meanCarLongitude = meanCarLongitude + listCarCoordinates[i][1];
+					}
+					carLatitude = meanCarLatitude/nbCarCoordinates;
+					carLongitude = meanCarLongitude/nbCarCoordinates;
+					indexCarCoordinates = 0;
 				}
 
-				carLatitude = dms2dd(latDegPos, latMinPos, latSecPos, latTenPos);
-				carLongitude = dms2dd(lonDegPos, lonMinPos, lonSecPos, lonTenPos);
-				dist = get_distance(carLatitude, carLongitude, destLatitude, destLongitude);
-				cnt++;
 
-				if (carLatitudePrev == 0) {
-					carLatitudePrev = carLatitude;
-					carLongitudePrev = carLongitude;
-					movement_with_GPS(carLatitude, carLongitude, carLatitudePrev, carLongitudePrev, destLatitude, destLongitude);
+				movement_with_GPS(carLatitudeStart, carLongitudeStart, destLatitude, destLongitude);
+
+				if (pos_OK == 1) {
+					carLatitudeStart = carLatitude;
+					carLongitudeStart = carLongitude;
+					pos_OK = 0;
+					destLatitude = listDestCoordinates[i][0];
+					destLongitude = listDestCoordinates[i][1];
+					if (isFire == 0) turn360();
+					else waiting_while_not_fire();
 				}
-				else {
-					movement_with_GPS(carLatitude, carLongitude, carLatitudePrev, carLongitudePrev, destLatitude, destLongitude);
-					carLatitudePrev = carLatitude;
-					carLongitudePrev = carLongitude;
-				}
+
+
 
 			}*/
+
 			#endif
         }
 
         /* CAN */
         // Envoi des mesures
-        /*
         if (SEND_CAN) {
-            SEND_CAN = 0;
-            data[0] = pos_OK; // ACK positon Ok
-            CAN_Send(data, CAN_ID_MS);
-        }
-        */
+			SEND_CAN = 0;
+			data[0] = pos_OK; // ACK position Ok
+			CAN_Send(data, CAN_ID_MS);
+		}
+        
     }
     /* USER CODE END 3 */
 }
